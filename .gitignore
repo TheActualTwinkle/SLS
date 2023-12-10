@@ -1,3 +1,5 @@
 # IDE cache directory
 .vs/
 .idea/
+
+.obsidian/
