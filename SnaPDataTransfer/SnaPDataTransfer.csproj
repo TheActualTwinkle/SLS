@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Include="..\..\SnaP\Assets\Scripts\SnaPDataTransfer\LobbyInfo.cs">
+        <Link>LobbyInfo.cs</Link>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="Open.Nat">
+        <HintPath>..\..\SnaP\Assets\Basic-UPnP\Plugins\Open.Nat.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+</Project>
