@@ -6,5 +6,5 @@ SDT - [SnaP](https://github.com/TheActualTwinkle/SnaP) Data Transfer
 * Store them 
 * Send this data to **SnaP** game  (as Client)
 
-![WorkingPrincipe](Gitimages/SDT.png)
+![WorkingPrincipe](GitImages/SDT.png)
 
