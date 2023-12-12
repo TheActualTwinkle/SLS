@@ -99,18 +99,40 @@ public class ClientHandler
                     break;
                 }
             }
-            else if (messageString == "get-info")
+            else if (messageString.Contains("get-info") == true)
             {
+                int indexOfIndex = messageString.IndexOf(' ');
+                indexOfIndex++;
+
+                if (indexOfIndex == -1)
+                {
+                    Console.WriteLine($"[CLIENT-{Environment.CurrentManagedThreadId}] Can`t find index of client state array.");
+                    break;    
+                }
+
+                string indexString = messageString[indexOfIndex..];
+
+                if (int.TryParse(indexString, out int index) == false)
+                {
+                    Console.WriteLine("[CLIENT-{Environment.CurrentManagedThreadId}] Can`t parse index of client state array.");
+                    break;
+                }
+
+                if (index >= Program.ClientStates.Count)
+                {
+                    Console.WriteLine("[CLIENT-{Environment.CurrentManagedThreadId}] Index of client state array is out of range.");
+                    break;
+                }
+                
                 try
                 {
-                    foreach (LobbyInfo clientState in Program.ClientStates)
-                    {
-                        string stateJson = JsonConvert.SerializeObject(clientState);
-                        byte[] reply = Encoding.ASCII.GetBytes(stateJson);
+                    LobbyInfo clientState = Program.ClientStates[index];
                     
-                        await clientStream.WriteAsync(reply);
-                        Console.WriteLine($"[CLIENT-{Environment.CurrentManagedThreadId}] Sent {reply.Length} bytes.");
-                    }
+                    string stateJson = JsonConvert.SerializeObject(clientState);
+                    byte[] reply = Encoding.ASCII.GetBytes(stateJson);
+                    
+                    await clientStream.WriteAsync(reply);
+                    Console.WriteLine($"[CLIENT-{Environment.CurrentManagedThreadId}] Sent {reply.Length} bytes.");
                 }
                 catch (Exception e)
                 {
