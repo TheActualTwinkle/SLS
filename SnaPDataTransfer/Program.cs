@@ -9,7 +9,7 @@ using System.Threading;
 
 internal class Program
 {
-    public static readonly List<LobbyInfo> ClientStates = new();
+    public static readonly List<LobbyInfo> LobbyInfos = new();
 
     public static string PublicIpAddress => _publicIpAddress;
     

@@ -75,7 +75,6 @@ public class ServerHandler
         var message = new byte[BufferSize];
 
         LobbyInfo lobbyInfo = new(string.Empty, 0, 0, 0, "Initializing...");
-        Program.ClientStates.Add(lobbyInfo);
 
         while (true)
         {
@@ -127,9 +126,17 @@ public class ServerHandler
                 Console.WriteLine($"[SERVER-{Environment.CurrentManagedThreadId}] Port Forward check failed. Closing connection and Removing from list.");
                 break;
             }
+
+            if (Program.LobbyInfos.Contains(lobbyInfo) == true)
+            {
+                continue;
+            }
+
+            Console.WriteLine($"[SERVER-{Environment.CurrentManagedThreadId}] Added new lobby info.");
+            Program.LobbyInfos.Add(lobbyInfo);
         }
 
-        Program.ClientStates.Remove(lobbyInfo);
+        Program.LobbyInfos.Remove(lobbyInfo);
         Console.WriteLine($"[SERVER-{Environment.CurrentManagedThreadId}] Closing connection.");
         tcpClient.Close();
     }

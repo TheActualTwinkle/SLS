@@ -88,10 +88,10 @@ public class ClientHandler
             {
                 try
                 {
-                    byte[] length = Encoding.ASCII.GetBytes(Program.ClientStates.Count.ToString());
+                    byte[] length = Encoding.ASCII.GetBytes(Program.LobbyInfos.Count.ToString());
                     await clientStream.WriteAsync(length);
 
-                    Console.WriteLine($"[CLIENT-{Environment.CurrentManagedThreadId}] Sent lobbies count: {Program.ClientStates.Count}.");
+                    Console.WriteLine($"[CLIENT-{Environment.CurrentManagedThreadId}] Sent lobbies count: {Program.LobbyInfos.Count}.");
                 }
                 catch (Exception e)
                 {
@@ -118,7 +118,7 @@ public class ClientHandler
                     break;
                 }
 
-                if (index >= Program.ClientStates.Count)
+                if (index >= Program.LobbyInfos.Count)
                 {
                     Console.WriteLine("[CLIENT-{Environment.CurrentManagedThreadId}] Index of client state array is out of range.");
                     break;
@@ -126,7 +126,7 @@ public class ClientHandler
                 
                 try
                 {
-                    LobbyInfo clientState = Program.ClientStates[index];
+                    LobbyInfo clientState = Program.LobbyInfos[index];
                     
                     string stateJson = JsonConvert.SerializeObject(clientState);
                     byte[] reply = Encoding.ASCII.GetBytes(stateJson);
