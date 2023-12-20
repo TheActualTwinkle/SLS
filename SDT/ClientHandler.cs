@@ -4,7 +4,7 @@ using System.Text;
 using Newtonsoft.Json;
 using SDT;
 
-namespace SnaPDataTransfer;
+namespace SDT;
 
 public class ClientHandler
 {

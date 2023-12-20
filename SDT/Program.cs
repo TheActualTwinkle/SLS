@@ -1,25 +1,24 @@
 ﻿using Open.Nat;
-using SDT;
 
-namespace SnaPDataTransfer;
+namespace SDT;
 
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
-internal class Program
+public class Program
 {
     public static readonly List<LobbyInfo> LobbyInfos = new();
 
     public static string PublicIpAddress => _publicIpAddress;
-    
     private static string _publicIpAddress = "127.0.0.1";
-    private static string _localIpAddress = "127.0.0.1";
     
-    private const int DedicatedPort = 47920;
-    private const int StandalonePort = 47921;
+    private static string _localIpAddress = "127.0.0.1";
 
-    private static async Task Main()
+    private const int ServerPort = 47920;
+    private const int ClientPort = 47921;
+
+    public static async Task Main()
     {
         _localIpAddress = await GetLocalIpAsync();
         _publicIpAddress = (await GetExternalIp()).ToString();
@@ -28,19 +27,18 @@ internal class Program
         Console.WriteLine($"Public IP Address is: {_publicIpAddress}");
         
         // Start dedicated server handler.
-        ServerHandler serverHandler = new(_localIpAddress, DedicatedPort);
+        ServerHandler serverHandler = new(_localIpAddress, ServerPort);
         Thread dedicatedServerThread = new(serverHandler.Start);
         dedicatedServerThread.Start();
 
         // Start standalone game handler.
-        ClientHandler clientHandler = new(_localIpAddress, StandalonePort);
+        ClientHandler clientHandler = new(_localIpAddress, ClientPort);
         Thread standaloneThread = new(clientHandler.Start);
         standaloneThread.Start();
-
+        
         while (true)
         {
         }
-        
         // ReSharper disable once FunctionNeverReturns
     }
 
@@ -69,7 +67,7 @@ internal class Program
     }
     
     /// <summary>
-    /// try to retrieve a UPnP compatible Device on the Route
+    /// Try to retrieve a UPnP compatible Device on the Route
     /// </summary>
     /// <returns>Async Task, NatDevice</returns>
     private static async Task<NatDevice> GetInterDevice()

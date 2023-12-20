@@ -61,11 +61,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\CSharp\\SnaPDataTransfer\\SnaPDataTransfer\\SnaPDataTransfer.csproj",
-      "projectName": "SnaPDataTransfer",
-      "projectPath": "C:\\CSharp\\SnaPDataTransfer\\SnaPDataTransfer\\SnaPDataTransfer.csproj",
+      "projectUniqueName": "C:\\CSharp\\SnaPDataTransfer\\SDT\\SDT.csproj",
+      "projectName": "SDT",
+      "projectPath": "C:\\CSharp\\SnaPDataTransfer\\SDT\\SDT.csproj",
       "packagesPath": "C:\\Users\\super\\.nuget\\packages\\",
-      "outputPath": "C:\\CSharp\\SnaPDataTransfer\\SnaPDataTransfer\\obj\\",
+      "outputPath": "C:\\CSharp\\SnaPDataTransfer\\SDT\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

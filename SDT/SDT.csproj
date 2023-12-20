@@ -5,13 +5,8 @@
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <RootNamespace>SnaPDataTransfer</RootNamespace>
     </PropertyGroup>
-
-    <ItemGroup>
-      <Compile Include="..\..\SnaP\Assets\Scripts\SnaPDataTransfer\LobbyInfo.cs">
-        <Link>LobbyInfo.cs</Link>
-      </Compile>
-    </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
@@ -19,7 +14,7 @@
 
     <ItemGroup>
       <Reference Include="Open.Nat">
-        <HintPath>..\..\SnaP\Assets\Basic-UPnP\Plugins\Open.Nat.dll</HintPath>
+        <HintPath>Open.Nat.dll</HintPath>
       </Reference>
     </ItemGroup>
 
