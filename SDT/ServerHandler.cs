@@ -79,10 +79,18 @@ public class ServerHandler
         while (true)
         {
             int bytesRead;
-
-            // If cant write to stream the exception will be raised - client will be closed.
-            await clientStream.WriteAsync("check"u8.ToArray().AsMemory(0, 5));
             
+            // If cant write to stream the exception will be raised - client will be closed.
+            try
+            {
+                await clientStream.WriteAsync("check"u8.ToArray().AsMemory(0, 5));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                throw;
+            }
+
             try
             {
                 // Read the incoming message.
