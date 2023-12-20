@@ -37,7 +37,7 @@ public class ClientHandler
             {
                 // Blocks until a client has connected to the server.
                 TcpClient client = await server.AcceptTcpClientAsync();
-                Console.WriteLine("[STANDALONE] Client connected!");
+                Console.WriteLine("[CLIENT] Client connected!");
 
                 // Create a thread to handle the client communication.
                 Thread clientThread = new(Handle);
