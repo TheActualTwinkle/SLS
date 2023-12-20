@@ -67,7 +67,16 @@ public class ClientHandler
 
         while (true)
         {
-            int readAsync = await clientStream.ReadAsync(message);
+            int readAsync;
+            try
+            {
+                readAsync = await clientStream.ReadAsync(message);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                break;
+            }
             
             // If cant read from stream the exception will be raised - client will be closed.
             if (readAsync <= 0)
