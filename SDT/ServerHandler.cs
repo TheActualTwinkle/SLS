@@ -143,10 +143,13 @@ public class ServerHandler
             Program.LobbyInfos.Add(lobbyInfo);
         }
 
-        Program.LobbyInfos.Remove(lobbyInfo);
+        while (Program.LobbyInfos.Contains(lobbyInfo) == true)
+        {
+            Program.LobbyInfos.Remove(lobbyInfo);
 
-        await Task.Delay(500); // Delaying for sure remove.
-        
+            await Task.Delay(200);
+        }
+
         Console.WriteLine($"[SERVER-{Environment.CurrentManagedThreadId}] Closing connection.");
         tcpClient.Close();
     }

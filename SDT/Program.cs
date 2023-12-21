@@ -37,6 +37,8 @@ public class Program
         
         while (true)
         {
+            Console.WriteLine($"LobbyInfos: {LobbyInfos.Count}");
+            await Task.Delay(5000);
         }
         // ReSharper disable once FunctionNeverReturns
     }
