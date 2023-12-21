@@ -15,8 +15,10 @@ public class Program
     
     private static string _localIpAddress = "127.0.0.1";
 
-    private const int ServerPort = 47920;
-    private const int ClientPort = 47921;
+    private const ushort ServerPort = 47920;
+    private const ushort ClientPort = 47921;
+    
+    private const uint CheckForDeadServersIntervalMs = 10000;
 
     public static async Task Main()
     {
@@ -38,9 +40,33 @@ public class Program
         
         while (true)
         {
+            CheckConnections();
+
+            await Task.Delay((int)CheckForDeadServersIntervalMs);
         }
         // ReSharper disable once FunctionNeverReturns
     }
+    
+    private static void CheckConnections()
+    {
+        foreach (LobbyInfo lobbyInfo in LobbyInfos)
+        {
+            try
+            {
+                TcpClient tcpClient = new();
+                tcpClient.Connect(lobbyInfo.PublicIpAddress, lobbyInfo.Port);
+        
+                NetworkStream clientStream = tcpClient.GetStream();
+                
+                clientStream.Write("check"u8.ToArray());
+            }
+            catch (Exception)
+            {
+                Console.WriteLine($"Dead lobby found (ip: {lobbyInfo.PublicIpAddress}).");
+                LobbyInfos.Remove(lobbyInfo);
+            }
+        }
+    } 
 
     /// <summary>
     /// Try to get External IP (provided by FAI), pass this IP to Client
