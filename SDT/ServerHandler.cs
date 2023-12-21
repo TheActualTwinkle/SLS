@@ -2,7 +2,6 @@
 using System.Net.Sockets;
 using System.Text;
 using Newtonsoft.Json;
-using SDT;
 
 namespace SDT;
 
@@ -21,7 +20,7 @@ public class ServerHandler
 
     public async void Start()
     {
-        TcpListener server = null;
+        TcpListener server = null!;
         try
         {
             IPAddress ipAddress = IPAddress.Parse(_ipAddress);
@@ -56,12 +55,12 @@ public class ServerHandler
         }
     }
     
-    private async void Handle(object obj)
+    private async void Handle(object? obj)
     {
         TcpClient tcpClient;
         try
         {
-            tcpClient = (TcpClient)obj;
+            tcpClient = (TcpClient)obj!;
         }
         catch (Exception e)
         {
@@ -145,6 +144,9 @@ public class ServerHandler
         }
 
         Program.LobbyInfos.Remove(lobbyInfo);
+
+        await Task.Delay(500); // Delaying for sure remove.
+        
         Console.WriteLine($"[SERVER-{Environment.CurrentManagedThreadId}] Closing connection.");
         tcpClient.Close();
     }

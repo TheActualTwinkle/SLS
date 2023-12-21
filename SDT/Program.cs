@@ -1,14 +1,13 @@
-﻿using Open.Nat;
+﻿namespace SDT;
 
-namespace SDT;
-
+using Open.Nat;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
 public class Program
 {
-    public static List<LobbyInfo> LobbyInfos = new();
+    public static readonly List<LobbyInfo> LobbyInfos = new();
 
     public static string PublicIpAddress => _publicIpAddress;
     private static string _publicIpAddress = "127.0.0.1";
@@ -18,8 +17,6 @@ public class Program
     private const ushort ServerPort = 47920;
     private const ushort ClientPort = 47921;
     
-    private const uint CheckForDeadServersIntervalMs = 10000;
-
     public static async Task Main()
     {
         _localIpAddress = await GetLocalIpAsync();
@@ -40,45 +37,9 @@ public class Program
         
         while (true)
         {
-            List<LobbyInfo> lobbies = LobbyInfos.ToList();
-
-            foreach (LobbyInfo lobby in lobbies)
-            {
-                Thread removeLobbyIfDeadThread = new(RemoveLobbyIfDead);
-                removeLobbyIfDeadThread.Start(lobby);
-            }
-
-            await Task.Delay((int)CheckForDeadServersIntervalMs);
         }
         // ReSharper disable once FunctionNeverReturns
     }
-    
-    private static async void RemoveLobbyIfDead(object? obj)
-    {
-        if (obj == null)
-        {
-            return;
-        }
-        
-        LobbyInfo lobbyInfo = (LobbyInfo)obj;
-        
-        string ipAddress = lobbyInfo.PublicIpAddress;
-        ushort port = lobbyInfo.Port;
-        
-        try
-        {
-            TcpClient tcpClient = new();
-            await tcpClient.ConnectAsync(ipAddress, port);
-        
-            NetworkStream clientStream = tcpClient.GetStream();
-                
-            await clientStream.WriteAsync("check"u8.ToArray().AsMemory(0, 5));
-        }
-        catch (Exception)
-        {
-            LobbyInfos.Remove(lobbyInfo);
-        }
-    } 
 
     /// <summary>
     /// Try to get External IP (provided by FAI), pass this IP to Client
