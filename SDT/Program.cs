@@ -40,42 +40,44 @@ public class Program
         
         while (true)
         {
-            CheckConnections();
+            List<LobbyInfo> lobbies = LobbyInfos.ToList();
+
+            foreach (LobbyInfo lobby in lobbies)
+            {
+                Thread removeLobbyIfDeadThread = new(RemoveLobbyIfDead);
+                removeLobbyIfDeadThread.Start(lobby);
+            }
 
             await Task.Delay((int)CheckForDeadServersIntervalMs);
         }
         // ReSharper disable once FunctionNeverReturns
     }
     
-    private static async void CheckConnections()
+    private static async void RemoveLobbyIfDead(object? obj)
     {
-        List<LobbyInfo> lobbiesToDelete = new();
-        foreach (LobbyInfo lobbyInfo in LobbyInfos)
-        {
-            try
-            {
-                TcpClient tcpClient = new();
-                Console.WriteLine(tcpClient.SendTimeout);
-                await tcpClient.ConnectAsync(lobbyInfo.PublicIpAddress, lobbyInfo.Port);
-        
-                NetworkStream clientStream = tcpClient.GetStream();
-                
-                await clientStream.WriteAsync("check"u8.ToArray().AsMemory(0, 5));
-            }
-            catch (Exception)
-            {
-                Console.WriteLine($"Dead lobby found (ip: {lobbyInfo.PublicIpAddress}).");
-                lobbiesToDelete.Add(lobbyInfo);
-            }
-        }
-
-        if (lobbiesToDelete.Count == 0)
+        if (obj == null)
         {
             return;
         }
         
-        Console.WriteLine($"Killing {lobbiesToDelete.Count} dead lobbies...");
-        LobbyInfos = LobbyInfos.Where(x => lobbiesToDelete.Contains(x) == false).ToList();
+        LobbyInfo lobbyInfo = (LobbyInfo)obj;
+        
+        string ipAddress = lobbyInfo.PublicIpAddress;
+        ushort port = lobbyInfo.Port;
+        
+        try
+        {
+            TcpClient tcpClient = new();
+            await tcpClient.ConnectAsync(ipAddress, port);
+        
+            NetworkStream clientStream = tcpClient.GetStream();
+                
+            await clientStream.WriteAsync("check"u8.ToArray().AsMemory(0, 5));
+        }
+        catch (Exception)
+        {
+            LobbyInfos.Remove(lobbyInfo);
+        }
     } 
 
     /// <summary>
