@@ -8,7 +8,7 @@ using System.Threading;
 
 public class Program
 {
-    public static readonly List<LobbyInfo> LobbyInfos = new();
+    public static List<LobbyInfo> LobbyInfos = new();
 
     public static string PublicIpAddress => _publicIpAddress;
     private static string _publicIpAddress = "127.0.0.1";
@@ -47,25 +47,35 @@ public class Program
         // ReSharper disable once FunctionNeverReturns
     }
     
-    private static void CheckConnections()
+    private static async void CheckConnections()
     {
+        List<LobbyInfo> lobbiesToDelete = new();
         foreach (LobbyInfo lobbyInfo in LobbyInfos)
         {
             try
             {
                 TcpClient tcpClient = new();
-                tcpClient.Connect(lobbyInfo.PublicIpAddress, lobbyInfo.Port);
+                Console.WriteLine(tcpClient.SendTimeout);
+                await tcpClient.ConnectAsync(lobbyInfo.PublicIpAddress, lobbyInfo.Port);
         
                 NetworkStream clientStream = tcpClient.GetStream();
                 
-                clientStream.Write("check"u8.ToArray());
+                await clientStream.WriteAsync("check"u8.ToArray().AsMemory(0, 5));
             }
             catch (Exception)
             {
                 Console.WriteLine($"Dead lobby found (ip: {lobbyInfo.PublicIpAddress}).");
-                LobbyInfos.Remove(lobbyInfo);
+                lobbiesToDelete.Add(lobbyInfo);
             }
         }
+
+        if (lobbiesToDelete.Count == 0)
+        {
+            return;
+        }
+        
+        Console.WriteLine($"Killing {lobbiesToDelete.Count} dead lobbies...");
+        LobbyInfos = LobbyInfos.Where(x => lobbiesToDelete.Contains(x) == false).ToList();
     } 
 
     /// <summary>
