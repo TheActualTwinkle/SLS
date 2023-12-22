@@ -12,8 +12,6 @@ public class ServerHandler
     private readonly string _ipAddress;
     private readonly int _port;
 
-    private static SemaphoreSlim _semaphoreSlim = new(1, 1);
-
     public ServerHandler(string ipAddress, int port)
     {
         _ipAddress = ipAddress;
@@ -145,11 +143,7 @@ public class ServerHandler
             Program.LobbyInfos.Add(lobbyInfo);
         }
 
-        await _semaphoreSlim.WaitAsync();
-
         Program.LobbyInfos.Remove(lobbyInfo);
-
-        _semaphoreSlim.Release();
 
         Console.WriteLine($"[SERVER-{Environment.CurrentManagedThreadId}] Closing connection.");
         tcpClient.Close();
