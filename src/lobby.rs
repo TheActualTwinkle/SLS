@@ -21,7 +21,7 @@ pub struct Lobby {
 #[serde(rename_all = "PascalCase")]
 pub struct CreateLobby {
     pub address: String,
-    pub port: String,
+    pub port: u16,
     pub max_seats: usize,
     pub player_count: usize,
     pub lobby_name: String,
@@ -30,7 +30,6 @@ pub struct CreateLobby {
 #[derive(Debug)]
 pub enum LobbyError {
     AddressParseError,
-    PortParseError,
 }
 
 impl Lobby {
@@ -39,12 +38,8 @@ impl Lobby {
             .address
             .parse()
             .map_err(|_| LobbyError::AddressParseError)?;
-        let port: u16 = create
-            .port
-            .parse()
-            .map_err(|_| LobbyError::PortParseError)?;
 
-        let public_addr = SocketAddr::from((address, port));
+        let public_addr = SocketAddr::from((address, create.port));
 
         Ok(Self {
             id,
