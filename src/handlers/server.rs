@@ -92,7 +92,7 @@ async fn handle(stream: TcpStream) {
         let create: CreateLobby = match serde_json::from_slice(&buf[..n]) {
             Ok(create) => create,
             Err(e) => {
-                warn!("Error parsing ClientMessage: {e}");
+                warn!("Error parsing CreateLobby command: {e}");
                 break;
             }
         };
