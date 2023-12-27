@@ -1,6 +1,6 @@
 use std::{
     collections::HashMap,
-    net::SocketAddr,
+    net::{Ipv4Addr, SocketAddr},
     sync::{Arc, OnceLock},
 };
 
@@ -18,22 +18,45 @@ pub struct Lobby {
 }
 
 #[derive(Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
 pub struct CreateLobby {
-    pub public_addr: SocketAddr,
+    pub address: String,
+    pub port: String,
     pub max_seats: usize,
     pub player_count: usize,
     pub lobby_name: String,
 }
 
+#[derive(Debug)]
+pub enum LobbyError {
+    AddressParseError,
+    PortParseError,
+}
+
 impl Lobby {
-    pub fn create(id: Uuid, create: &CreateLobby) -> Self {
-        Self {
+    pub fn create(id: Uuid, create: &CreateLobby) -> Result<Self, LobbyError> {
+        let address: Ipv4Addr = create
+            .address
+            .parse()
+            .map_err(|_| LobbyError::AddressParseError)?;
+        let port: u16 = create
+            .port
+            .parse()
+            .map_err(|_| LobbyError::PortParseError)?;
+
+        let public_addr = SocketAddr::from((address, port));
+
+        Ok(Self {
             id,
-            public_addr: create.public_addr,
+            public_addr,
             max_seats: create.max_seats,
             player_count: create.player_count,
             lobby_name: create.lobby_name.clone(),
-        }
+        })
+    }
+
+    pub fn address(&self) -> SocketAddr {
+        self.public_addr
     }
 }
 

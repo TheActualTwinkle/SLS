@@ -1,4 +1,4 @@
-use std::net::SocketAddr;
+use std::{net::SocketAddr, str::FromStr};
 
 use log::*;
 use serde::{Deserialize, Serialize};
@@ -34,6 +34,7 @@ impl SdtServerHandler {
     }
 
     pub async fn run(&mut self) {
+        info!("ServerHandler started!");
         loop {
             let (stream, _) = self.listener.accept().await.unwrap();
 
@@ -71,28 +72,51 @@ async fn handle(stream: TcpStream) {
             }
         };
 
-        let msg: ServerMessageSend = match serde_json::from_slice(&buf[..n]) {
+        let str_msg = match std::str::from_utf8(&buf[..n]) {
             Ok(msg) => msg,
+            Err(e) => {
+                warn!("Error reading ClientMessage: {e}");
+                break;
+            }
+        };
+
+        if str_msg == "close" {
+            info!("Client closed the connection.");
+            break;
+        }
+
+        // lobby creation
+
+        let create: CreateLobby = match serde_json::from_slice(&buf[..n]) {
+            Ok(create) => create,
             Err(e) => {
                 warn!("Error parsing ClientMessage: {e}");
                 break;
             }
         };
 
-        match msg {
-            ServerMessageSend::Ack => (),
-            ServerMessageSend::Bye => {
-                info!("Client closed the connection.");
+        let id = match Uuid::from_str(&str_msg[9..n]) {
+            Ok(id) => id,
+            Err(e) => {
+                warn!("Error parsing UUID: {e}");
                 break;
             }
-            ServerMessageSend::CreateLobby(create) => {
-                if !snap_server_available(create.public_addr).await {}
+        };
 
-                let lobby = Lobby::create(lobby_id, &create);
-                lobbies().write().await.insert(lobby_id, lobby);
-
-                info!("Lobby {lobby_id} created.");
+        let lobby = match Lobby::create(id, &create) {
+            Ok(lobby) => lobby,
+            Err(e) => {
+                warn!("Error creation lobby: {e:?}");
+                break;
             }
+        };
+
+        if snap_server_available(lobby.address()).await {
+            lobbies().write().await.insert(id, lobby);
+            info!("Lobby {id} created.");
+        } else {
+            warn!("Lobby {id} is not created: SNAP server is anavailable.");
+            break;
         }
     }
 
