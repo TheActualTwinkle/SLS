@@ -56,6 +56,7 @@ async fn handle(stream: TcpStream) {
     let mut buf = [0; 512];
 
     loop {
+        stream.writable().await.expect("Socket is unwritable");
         match stream.try_write(&serde_json::to_vec(&SdtClientMessageSend::Ack).unwrap()) {
             Ok(_) => (),
             Err(e) => {
@@ -65,6 +66,7 @@ async fn handle(stream: TcpStream) {
             }
         }
 
+        stream.readable().await.expect("Socket is unreadable");
         let n = match stream.try_read(&mut buf) {
             Ok(n) if n <= 0 => {
                 info!("Client closed connection");
@@ -95,6 +97,7 @@ async fn handle(stream: TcpStream) {
             let keys: Vec<Uuid> = lobbies().read().await.keys().map(|k| *k).collect();
             let msg: Vec<u8> = keys.iter().flat_map(|k| k.as_bytes().to_vec()).collect();
 
+            stream.writable().await.expect("Socket is unwritable");
             match stream.try_write(&msg) {
                 Ok(_) => (),
                 Err(e) => {
@@ -122,6 +125,7 @@ async fn handle(stream: TcpStream) {
             .unwrap();
 
             // return info
+            stream.writable().await.expect("Socket is unwritable");
             match stream.try_write(&msg) {
                 Ok(_) => (),
                 Err(e) => {

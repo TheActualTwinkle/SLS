@@ -50,6 +50,7 @@ async fn handle(stream: TcpStream) {
     let lobby_id = Uuid::new_v4();
 
     loop {
+        stream.writable().await.expect("Socket is unwritable");
         match stream.try_write(&serde_json::to_vec(&ServerMessageSend::Ack).unwrap()) {
             Ok(_) => (),
             Err(e) => {
@@ -59,6 +60,7 @@ async fn handle(stream: TcpStream) {
             }
         }
 
+        stream.readable().await.expect("Socket is unreadable");
         let n = match stream.try_read(&mut buf) {
             Ok(n) if n <= 0 => {
                 info!("Client closed connection");
