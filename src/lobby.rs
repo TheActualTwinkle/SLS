@@ -20,7 +20,7 @@ pub struct Lobby {
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct CreateLobby {
-    pub address: String,
+    pub public_ip_address: String,
     pub port: u16,
     pub max_seats: usize,
     pub player_count: usize,
@@ -35,7 +35,7 @@ pub enum LobbyError {
 impl Lobby {
     pub fn create(id: Uuid, create: &CreateLobby) -> Result<Self, LobbyError> {
         let address: Ipv4Addr = create
-            .address
+            .public_ip_address
             .parse()
             .map_err(|_| LobbyError::AddressParseError)?;
 
