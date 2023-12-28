@@ -13,7 +13,7 @@ pub struct Lobby {
     id: Uuid,
     public_addr: SocketAddr,
     max_seats: usize,
-    player_count: usize,
+    players_count: usize,
     lobby_name: String,
 }
 
@@ -23,7 +23,7 @@ pub struct CreateLobby {
     pub public_ip_address: String,
     pub port: u16,
     pub max_seats: usize,
-    pub player_count: usize,
+    pub players_count: usize,
     pub lobby_name: String,
 }
 
@@ -45,7 +45,7 @@ impl Lobby {
             id,
             public_addr,
             max_seats: create.max_seats,
-            player_count: create.player_count,
+            players_count: create.players_count,
             lobby_name: create.lobby_name.clone(),
         })
     }
