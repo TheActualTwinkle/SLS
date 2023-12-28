@@ -97,13 +97,7 @@ async fn handle(stream: TcpStream) {
             }
         };
 
-        let id = match Uuid::from_str(&str_msg[9..n]) {
-            Ok(id) => id,
-            Err(e) => {
-                warn!("Error parsing UUID: {e}");
-                break;
-            }
-        };
+        let id = Uuid::new_v4();
 
         let lobby = match Lobby::create(id, &create) {
             Ok(lobby) => lobby,
