@@ -10,6 +10,10 @@ public class ClientHandler
 {
     private const uint BufferSize = 512;
     
+    private const string GetCountCommand = "get-count";
+    private const string GetInfoCommand = "get-info";
+    private const string CloseCommand = "close";
+
     private readonly string _ipAddress;
     private readonly int _port;
 
@@ -87,13 +91,13 @@ public class ClientHandler
             
             string messageString = Encoding.ASCII.GetString(message, 0, readAsync).ToLower();
             
-            if (messageString == "close")
+            if (messageString == CloseCommand)
             {
                 Console.WriteLine($"[CLIENT-{Environment.CurrentManagedThreadId}] Client closed connection.");
                 break;
             }
             
-            if (messageString == "get-count")
+            if (messageString == GetCountCommand)
             {
                 try
                 {
@@ -108,7 +112,7 @@ public class ClientHandler
                     break;
                 }
             }
-            else if (messageString.Contains("get-info") == true)
+            else if (messageString.Contains(GetInfoCommand) == true)
             {
                 int indexOfIndex = messageString.IndexOf(' ');
                 indexOfIndex++;

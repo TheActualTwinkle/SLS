@@ -9,6 +9,9 @@ public class ServerHandler
 {
     private const uint BufferSize = 512;
 
+    private const string CheckCommand = "check";
+    private const string CloseCommand = "close";
+
     private readonly string _ipAddress;
     private readonly int _port;
 
@@ -82,7 +85,7 @@ public class ServerHandler
             // If cant write to stream the exception will be raised - client will be closed.
             try
             {
-                await clientStream.WriteAsync("check"u8.ToArray().AsMemory(0, 5));
+                await clientStream.WriteAsync(Encoding.ASCII.GetBytes(CheckCommand).ToArray().AsMemory(0, CheckCommand.Length));
             }
             catch (Exception e)
             {
@@ -111,7 +114,7 @@ public class ServerHandler
             string clientMessage = Encoding.ASCII.GetString(message, 0, bytesRead);
             Console.WriteLine($"[SERVER-{Environment.CurrentManagedThreadId}] Received: {clientMessage}");
 
-            if (clientMessage == "close")
+            if (clientMessage == CloseCommand)
             {
                 break;
             }
@@ -127,13 +130,6 @@ public class ServerHandler
                 Console.WriteLine($"[SERVER-{Environment.CurrentManagedThreadId}] Can`t deserialize json to LobbyInfo. " + e);
             }
 
-            Console.WriteLine($"[SERVER-{Environment.CurrentManagedThreadId}] Checking if SnaP Server port is forwarded...");
-            if (await CheckUdpPort(lobbyInfo.PublicIpAddress, lobbyInfo.Port) == false)
-            {
-                Console.WriteLine($"[SERVER-{Environment.CurrentManagedThreadId}] Port Forward check failed. Closing connection and Removing from list.");
-                break;
-            }
-
             if (Program.LobbyInfos.Contains(lobbyInfo) == true)
             {
                 continue;
@@ -147,28 +143,5 @@ public class ServerHandler
 
         Console.WriteLine($"[SERVER-{Environment.CurrentManagedThreadId}] Closing connection.");
         tcpClient.Close();
-    }
-
-    private async Task<bool> CheckUdpPort(string ip, ushort port)
-    {
-        if (Program.PublicIpAddress == ip)
-        {
-            Console.WriteLine($"[SERVER-{Environment.CurrentManagedThreadId}] Seems like we are on the same network. Skipping port check.");
-            return true;
-        }
-
-        UdpClient udpServer = new(ip, port);
-
-        CancellationTokenSource cancellationToken = new(10000);
-
-        try
-        {
-            await udpServer.ReceiveAsync(cancellationToken.Token);
-            return true;
-        }
-        catch (Exception)
-        {
-            return false;
-        }
     }
 }
