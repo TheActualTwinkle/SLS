@@ -27,5 +27,14 @@
             lobbyInfo.PlayersCount = PlayersCount;
             lobbyInfo.LobbyName = LobbyName;
         }
+
+        public bool ValuesEquals(LobbyInfo lobbyInfo)
+        {
+            return PublicIpAddress == lobbyInfo.PublicIpAddress &&
+                   Port == lobbyInfo.Port &&
+                   MaxSeats == lobbyInfo.MaxSeats &&
+                   PlayersCount == lobbyInfo.PlayersCount &&
+                   LobbyName == lobbyInfo.LobbyName;
+        }
     }
 }

@@ -6,18 +6,24 @@ using SDT;
 
 namespace SDT;
 
-public class ClientHandler
+/// <summary>
+/// Handler of SnaP clients.
+/// </summary>
+public class ClientsHandler
 {
-    private const uint BufferSize = 512;
+    public const uint BufferSize = 512;
+
+    public bool HasClients => throw new NotImplementedException();
     
-    private const string GetCountCommand = "get-count";
-    private const string GetInfoCommand = "get-info";
-    private const string CloseCommand = "close";
+    public const string GetCountCommand = "get-count";
+    public const string GetInfoCommand = "get-info";
+    public const string CloseCommand = "close";
+    public const string UnknownCommandResponse = "Unknown command.";
 
     private readonly string _ipAddress;
     private readonly int _port;
 
-    public ClientHandler(string ipAddress, int port)
+    public ClientsHandler(string ipAddress, int port)
     {
         _ipAddress = ipAddress;
         _port = port;
@@ -25,7 +31,7 @@ public class ClientHandler
 
     public async void Start()
     {
-        TcpListener server = null;
+        TcpListener server = null!;
 
         try
         {
@@ -93,7 +99,7 @@ public class ClientHandler
             
             if (messageString == CloseCommand)
             {
-                Console.WriteLine($"[CLIENT-{Environment.CurrentManagedThreadId}] Client closed connection.");
+                HandleCloseCommand();
                 break;
             }
             
@@ -101,10 +107,7 @@ public class ClientHandler
             {
                 try
                 {
-                    byte[] length = Encoding.ASCII.GetBytes(Program.LobbyInfos.Count.ToString());
-                    await clientStream.WriteAsync(length);
-
-                    Console.WriteLine($"[CLIENT-{Environment.CurrentManagedThreadId}] Sent lobbies count: {Program.LobbyInfos.Count}.");
+                    await HandleGetCountCommand(clientStream);
                 }
                 catch (Exception e)
                 {
@@ -114,52 +117,87 @@ public class ClientHandler
             }
             else if (messageString.Contains(GetInfoCommand) == true)
             {
-                int indexOfIndex = messageString.IndexOf(' ');
-                indexOfIndex++;
-
-                if (indexOfIndex == -1)
+                if (await HandleGetInfoCommand(messageString, clientStream))
                 {
-                    Console.WriteLine($"[CLIENT-{Environment.CurrentManagedThreadId}] Can`t find index of client state array.");
-                    break;    
-                }
-
-                string indexString = messageString[indexOfIndex..];
-
-                if (int.TryParse(indexString, out int index) == false)
-                {
-                    Console.WriteLine("[CLIENT-{Environment.CurrentManagedThreadId}] Can`t parse index of client state array.");
-                    break;
-                }
-
-                if (index >= Program.LobbyInfos.Count)
-                {
-                    Console.WriteLine("[CLIENT-{Environment.CurrentManagedThreadId}] Index of client state array is out of range.");
-                    break;
-                }
-                
-                try
-                {
-                    LobbyInfo clientState = Program.LobbyInfos[index];
-                    
-                    string stateJson = JsonConvert.SerializeObject(clientState);
-                    byte[] reply = Encoding.ASCII.GetBytes(stateJson);
-                    
-                    await clientStream.WriteAsync(reply);
-                    Console.WriteLine($"[CLIENT-{Environment.CurrentManagedThreadId}] Sent {reply.Length} bytes.");
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
                     break;
                 }
             }
             else
             {
-                Console.WriteLine($"[CLIENT-{Environment.CurrentManagedThreadId}] Unknown command: {messageString}");
+                HandleUnknownCommand(messageString, clientStream);
             }
         }
         
         Console.WriteLine($"[CLIENT-{Environment.CurrentManagedThreadId}] Closing connection.");
         tcpClient.Close();
     }
+
+    #region CommandHandlers
+
+    private static async Task HandleGetCountCommand(NetworkStream clientStream)
+    {
+        byte[] length = Encoding.ASCII.GetBytes(Program.LobbyInfos.Count.ToString());
+        await clientStream.WriteAsync(length);
+
+        Console.WriteLine($"[CLIENT-{Environment.CurrentManagedThreadId}] Sent lobbies count: {Program.LobbyInfos.Count}.");
+    }
+
+    private static async Task<bool> HandleGetInfoCommand(string messageString, NetworkStream clientStream)
+    {
+        int indexOfIndex = messageString.IndexOf(' ');
+        indexOfIndex++;
+
+        if (indexOfIndex == -1)
+        {
+            Console.WriteLine($"[CLIENT-{Environment.CurrentManagedThreadId}] Can`t find index of client state array.");
+            return true;
+        }
+
+        string indexString = messageString[indexOfIndex..];
+
+        if (int.TryParse(indexString, out int index) == false)
+        {
+            Console.WriteLine("[CLIENT-{Environment.CurrentManagedThreadId}] Can`t parse index of client state array.");
+            return true;
+        }
+
+        if (index >= Program.LobbyInfos.Count)
+        {
+            Console.WriteLine("[CLIENT-{Environment.CurrentManagedThreadId}] Index of client state array is out of range.");
+            return true;
+        }
+
+        try
+        {
+            LobbyInfo clientState = Program.LobbyInfos[index];
+
+            string stateJson = JsonConvert.SerializeObject(clientState);
+            byte[] reply = Encoding.ASCII.GetBytes(stateJson);
+
+            await clientStream.WriteAsync(reply);
+            Console.WriteLine($"[CLIENT-{Environment.CurrentManagedThreadId}] Sent {reply.Length} bytes.");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            return true;
+        }
+
+        return false;
+    }
+
+    private static void HandleCloseCommand()
+    {
+        Console.WriteLine($"[CLIENT-{Environment.CurrentManagedThreadId}] Client closed connection.");
+    }
+    
+    private static async void HandleUnknownCommand(string messageString, NetworkStream clientStream)
+    {
+        byte[] length = "Unknown command."u8.ToArray();
+        await clientStream.WriteAsync(length);
+        
+        Console.WriteLine($"[CLIENT-{Environment.CurrentManagedThreadId}] Unknown command: {messageString}");
+    }
+
+    #endregion
 }
