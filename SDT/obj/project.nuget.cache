@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "4RtfNFQL+xdrox8gIRkpM7leFDgrN4hs+vY9ZMVCmxOZfXKSYNGKTyd2QDu1oMuD8bW2Vt6UPviBBwEaCBrLyA==",
+  "dgSpecHash": "7SwYjckGoCQCV/3Q7mxnfyZJpRaX3Qsijl5fNNcXiMVoM371HcidZ9YP/Ctpit9X9c0mqiFriX2dsF3nxE/XYA==",
   "success": true,
-  "projectFilePath": "C:\\CSharp\\SnaPDataTransfer\\SDT\\SDT.csproj",
+  "projectFilePath": "C:\\CSharp\\SDT\\SDT\\SDT.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\super\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512"
   ],

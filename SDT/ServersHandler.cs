@@ -5,17 +5,20 @@ using Newtonsoft.Json;
 
 namespace SDT;
 
-public class ServerHandler
+/// <summary>
+/// Handler of SnaP servers.
+/// </summary>
+public class ServersHandler
 {
-    private const uint BufferSize = 512;
+    public const uint BufferSize = 512;
 
+    public const string CloseCommand = "close";
     private const string CheckCommand = "check";
-    private const string CloseCommand = "close";
 
     private readonly string _ipAddress;
     private readonly int _port;
 
-    public ServerHandler(string ipAddress, int port)
+    public ServersHandler(string ipAddress, int port)
     {
         _ipAddress = ipAddress;
         _port = port;
@@ -82,10 +85,11 @@ public class ServerHandler
         {
             int bytesRead;
             
+            // Send check command to client.
             // If cant write to stream the exception will be raised - client will be closed.
             try
             {
-                await clientStream.WriteAsync(Encoding.ASCII.GetBytes(CheckCommand).ToArray().AsMemory(0, CheckCommand.Length));
+                await clientStream.WriteAsync(Encoding.ASCII.GetBytes(CheckCommand).AsMemory(0, CheckCommand.Length));
             }
             catch (Exception e)
             {
@@ -93,6 +97,7 @@ public class ServerHandler
                 break;
             }
 
+            // Read the incoming message. Expected json lobby info.
             try
             {
                 // Read the incoming message.
@@ -110,7 +115,7 @@ public class ServerHandler
                 break;
             }
 
-            // Convert the bytes to a string and display it.
+            // Convert the bytes to a string and print it.
             string clientMessage = Encoding.ASCII.GetString(message, 0, bytesRead);
             Console.WriteLine($"[SERVER-{Environment.CurrentManagedThreadId}] Received: {clientMessage}");
 
@@ -128,6 +133,7 @@ public class ServerHandler
             catch (Exception e)
             {
                 Console.WriteLine($"[SERVER-{Environment.CurrentManagedThreadId}] Can`t deserialize json to LobbyInfo. " + e);
+                continue;
             }
 
             if (Program.LobbyInfos.Contains(lobbyInfo) == true)
