@@ -12,14 +12,38 @@ public static class Tools
         await stream.WriteAsync(data, 0, data.Length);
     }
 
-    public static async Task<string> ReadAsync(uint bufferSize, NetworkStream stream, CancellationToken ct)
+    public static async Task<string> ReadAsync(NetworkStream stream, CancellationToken ct)
     {
-        var buffer = new byte[bufferSize];
-
-        int read = await stream.ReadAsync(buffer, ct);
-        string message = Encoding.ASCII.GetString(buffer, 0, read);
-
-        return message;
+        // Start with a reasonable initial buffer size
+        const int initialBufferSize = 1024;
+    
+        // Initialize a MemoryStream to store the incoming data
+        using MemoryStream memoryStream = new();
+        
+        // Create a temporary buffer for reading data
+        var buffer = new byte[initialBufferSize];
+        int bytesRead;
+        
+        // Loop until the end of the message is reached
+        while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, ct)) > 0)
+        {
+            // Write the read bytes to the memory stream
+            memoryStream.Write(buffer, 0, bytesRead);
+            
+            // If there's more data available, resize the buffer and continue reading
+            if (stream.DataAvailable)
+            {
+                Array.Resize(ref buffer, buffer.Length * 2);
+            }
+            else
+            {
+                // No more data available, break out of the loop
+                break;
+            }
+        }
+        
+        // Convert the accumulated bytes to a string using ASCII encoding
+        return Encoding.ASCII.GetString(memoryStream.ToArray());
     }
     
     public static async Task<TcpClient> Connect(ushort port)
@@ -30,15 +54,14 @@ public static class Tools
         return tcpClient;
     }
 
-    public static void DisposeTcpClient(TcpClient tcpClient)
+    public static void CloseTcpClient(TcpClient tcpClient)
     {
         tcpClient.Close();
-        tcpClient.Dispose();
     }
     
-    public static void RegisterLobbyInfo(LobbyInfo lobbyInfo)
+    public static void RegisterLobbyInfo(Guid guid, LobbyInfo lobbyInfo)
     {
-        Program.LobbyInfos.Add(lobbyInfo);
+        Program.LobbyInfos.TryAdd(guid, lobbyInfo);
     }
     
     public static LobbyInfo GetRandomLobbyInfo()
@@ -54,5 +77,28 @@ public static class Tools
         string name = "TestLobby_" + random.Next(-100, 100);
 
         return new LobbyInfo(ipAddress, port, maxSeats, playerCount, name);
+    }
+
+    /// <summary>
+    /// Creates list of random lobby infos and registers them in Program.LobbyInfos dictionary.
+    /// </summary>
+    /// <param name="count">Count of lobby to create</param>
+    /// <returns>Guid list of created lobby infos</returns>
+    public static List<Guid> RegisterRandomLobbyInfo(uint count)
+    {
+        List<Guid> uids = new();
+
+        for (var i = 0; i < count; i++)
+        {
+            uids.Add(Guid.NewGuid());
+        }
+
+        foreach (Guid uid in uids)
+        {
+            LobbyInfo randomLobbyInfo = GetRandomLobbyInfo();
+            RegisterLobbyInfo(uid, randomLobbyInfo);
+        }
+
+        return uids;
     }
 }

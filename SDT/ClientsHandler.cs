@@ -2,7 +2,6 @@
 using System.Net.Sockets;
 using System.Text;
 using Newtonsoft.Json;
-using SDT;
 
 namespace SDT;
 
@@ -11,17 +10,33 @@ namespace SDT;
 /// </summary>
 public class ClientsHandler
 {
-    public const uint BufferSize = 512;
+    private const uint BufferSize = 512;
 
-    public bool HasClients => throw new NotImplementedException();
+    public bool HasClients
+    {
+        get
+        {
+            lock (_clientsListLock)
+            {
+                return _clients.Any();
+            }
+        }
+    }
     
-    public const string GetCountCommand = "get-count";
+    public const string GetGuidsCommand = "get-guids";
     public const string GetInfoCommand = "get-info";
     public const string CloseCommand = "close";
     public const string UnknownCommandResponse = "Unknown command.";
 
     private readonly string _ipAddress;
     private readonly int _port;
+    
+    // Local list of connected SnaP Clients.
+    private readonly List<Guid> _clients = new();
+    
+    private readonly object _clientsListLock = new();
+    
+    private TcpListener? _server;
 
     public ClientsHandler(string ipAddress, int port)
     {
@@ -31,23 +46,20 @@ public class ClientsHandler
 
     public async void Start()
     {
-        TcpListener server = null!;
-
         try
         {
             // TcpListener is used to wait for a connection from a client.
-            server = new TcpListener(IPAddress.Parse(_ipAddress), _port);
+            _server = new TcpListener(IPAddress.Parse(_ipAddress), _port);
 
             // Start listening for client requests.
-            server.Start();
+            _server.Start();
 
-            Console.WriteLine($"[CLIENT] Server for SnaP CLIENTS started at {_ipAddress}:{_port}. Waiting for connections...");
+            Console.WriteLine($"[CH] Server for SnaP CLIENTS started at {_ipAddress}:{_port}. Waiting for connections...");
 
             while (true)
             {
                 // Blocks until a client has connected to the server.
-                TcpClient client = await server.AcceptTcpClientAsync();
-                Console.WriteLine("[CLIENT] Client connected!");
+                TcpClient client = await _server.AcceptTcpClientAsync();
 
                 // Create a thread to handle the client communication.
                 Thread clientThread = new(Handle);
@@ -56,31 +68,53 @@ public class ClientsHandler
         }
         catch (Exception e)
         {
-            Console.WriteLine("[CLIENT] Exception: " + e.Message);
+            Console.WriteLine("[CH] Exception: " + e.Message);
         }
         finally
         {
             // Stop listening for new clients.
-            server.Stop();
+            Stop();
         }
 
-        Console.WriteLine("[CLIENT] Server closing...");
+        Console.WriteLine("[CH] Server closing...");
     }
 
     private async void Handle(object obj)
     {
-        TcpClient tcpClient = (TcpClient)obj;
+        Guid guid = Guid.NewGuid();
+
+        TcpClient tcpClient;
+        try
+        {
+            tcpClient = (TcpClient)obj!;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"[CH/{guid}] Error on parse obj to TcpClient. {e}");
+            throw;
+        }
+        
         NetworkStream clientStream = tcpClient.GetStream();
+
+        Console.WriteLine($"[CH/{guid}] Client connected!");
+
+        lock (_clientsListLock)
+        {
+            _clients.Add(guid);
+        }
 
         // Buffer to store the response bytes.
         var message = new byte[BufferSize];
 
         while (true)
         {
-            int readAsync;
+            int bytesRead;
+            
+            // Send check command to client.
+            // If cant write to stream the exception will be raised - client will be closed.
             try
             {
-                readAsync = await clientStream.ReadAsync(message);
+                bytesRead = await clientStream.ReadAsync(message);
             }
             catch (Exception e)
             {
@@ -89,25 +123,25 @@ public class ClientsHandler
             }
             
             // If cant read from stream the exception will be raised - client will be closed.
-            if (readAsync <= 0)
+            if (bytesRead <= 0)
             {
-                Console.WriteLine($"[CLIENT-{Environment.CurrentManagedThreadId}] Client closed connection.");
+                Console.WriteLine($"[CH/{guid}] Client closed connection.");
                 break;
             }
             
-            string messageString = Encoding.ASCII.GetString(message, 0, readAsync).ToLower();
+            string messageString = Encoding.ASCII.GetString(message, 0, bytesRead).ToLower();
             
             if (messageString == CloseCommand)
             {
-                HandleCloseCommand();
+                HandleCloseCommand(guid);
                 break;
             }
             
-            if (messageString == GetCountCommand)
+            if (messageString == GetGuidsCommand)
             {
                 try
                 {
-                    await HandleGetCountCommand(clientStream);
+                    await HandleGetGuidsCommand(clientStream, guid);
                 }
                 catch (Exception e)
                 {
@@ -117,86 +151,98 @@ public class ClientsHandler
             }
             else if (messageString.Contains(GetInfoCommand) == true)
             {
-                if (await HandleGetInfoCommand(messageString, clientStream))
+                if (await HandleGetInfoCommand(messageString, clientStream, guid) == false)
                 {
                     break;
                 }
             }
             else
             {
-                HandleUnknownCommand(messageString, clientStream);
+                HandleUnknownCommand(messageString, clientStream, guid);
             }
         }
+
+        lock (_clientsListLock)
+        {
+            _clients.Remove(guid);
+        }
         
-        Console.WriteLine($"[CLIENT-{Environment.CurrentManagedThreadId}] Closing connection.");
+        Console.WriteLine($"[CH/{guid}] Closing connection.");
         tcpClient.Close();
+    }
+
+    public void Stop()
+    {
+        _server?.Stop();
     }
 
     #region CommandHandlers
 
-    private static async Task HandleGetCountCommand(NetworkStream clientStream)
+    private static async Task HandleGetGuidsCommand(NetworkStream clientStream, Guid chGuid)
     {
-        byte[] length = Encoding.ASCII.GetBytes(Program.LobbyInfos.Count.ToString());
-        await clientStream.WriteAsync(length);
-
-        Console.WriteLine($"[CLIENT-{Environment.CurrentManagedThreadId}] Sent lobbies count: {Program.LobbyInfos.Count}.");
+        string keysJson = JsonConvert.SerializeObject(Program.LobbyInfos.Keys);
+        byte[] keysAsBytes = Encoding.ASCII.GetBytes(keysJson);
+        
+        await clientStream.WriteAsync(keysAsBytes);
+        
+        Console.WriteLine($"[CH/{chGuid}] Sent lobbies Guids. Count: {Program.LobbyInfos.Count}.");
     }
 
-    private static async Task<bool> HandleGetInfoCommand(string messageString, NetworkStream clientStream)
+    private static async Task<bool> HandleGetInfoCommand(string messageString, NetworkStream clientStream, Guid chGuid)
     {
-        int indexOfIndex = messageString.IndexOf(' ');
-        indexOfIndex++;
+        int indexOfSeparator = messageString.IndexOf(' ');
+        indexOfSeparator++;
 
-        if (indexOfIndex == -1)
+        if (indexOfSeparator == -1)
         {
-            Console.WriteLine($"[CLIENT-{Environment.CurrentManagedThreadId}] Can`t find index of client state array.");
-            return true;
+            Console.WriteLine($"[CH/{chGuid}] Can`t find index of separator in message.");
+            return false;
         }
 
-        string indexString = messageString[indexOfIndex..];
+        string guidString = messageString[indexOfSeparator..];
 
-        if (int.TryParse(indexString, out int index) == false)
+        if (Guid.TryParse(guidString, out Guid guid) == false)
         {
-            Console.WriteLine("[CLIENT-{Environment.CurrentManagedThreadId}] Can`t parse index of client state array.");
-            return true;
+            Console.WriteLine($"[CH/{chGuid}] Can`t parse guid from message: {guidString}");
+            return false;
         }
 
-        if (index >= Program.LobbyInfos.Count)
+        if (Program.LobbyInfos.ContainsKey(guid) == false)
         {
-            Console.WriteLine("[CLIENT-{Environment.CurrentManagedThreadId}] Index of client state array is out of range.");
-            return true;
+            Console.WriteLine($"[CH/{chGuid}] Can`t find entry with wanted guid: {guid}.");
+            return false;
         }
 
         try
         {
-            LobbyInfo clientState = Program.LobbyInfos[index];
+            LobbyInfo clientState = Program.LobbyInfos[guid];
 
             string stateJson = JsonConvert.SerializeObject(clientState);
             byte[] reply = Encoding.ASCII.GetBytes(stateJson);
 
             await clientStream.WriteAsync(reply);
-            Console.WriteLine($"[CLIENT-{Environment.CurrentManagedThreadId}] Sent {reply.Length} bytes.");
+            Console.WriteLine($"[CH/{chGuid}] Sent {reply.Length} bytes.");
         }
         catch (Exception e)
         {
             Console.WriteLine(e.Message);
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     }
 
-    private static void HandleCloseCommand()
+    private static void HandleCloseCommand(Guid chGuid)
     {
-        Console.WriteLine($"[CLIENT-{Environment.CurrentManagedThreadId}] Client closed connection.");
+        Console.WriteLine($"[CH/{chGuid}] Client closed connection.");
     }
     
-    private static async void HandleUnknownCommand(string messageString, NetworkStream clientStream)
+    private static async void HandleUnknownCommand(string messageString, NetworkStream clientStream, Guid chGuid)
     {
         byte[] length = "Unknown command."u8.ToArray();
         await clientStream.WriteAsync(length);
         
-        Console.WriteLine($"[CLIENT-{Environment.CurrentManagedThreadId}] Unknown command: {messageString}");
+        Console.WriteLine($"[CH/{chGuid}] Unknown command: {messageString}");
     }
 
     #endregion
