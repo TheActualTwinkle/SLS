@@ -4,87 +4,92 @@ using Newtonsoft.Json;
 
 namespace SDT.Tests;
 
+[TestFixture]
 public class ClientTests
 {
     private ClientsHandler? _clientsHandler;
 
     private NetworkStream NetworkStream => _tcpClient.GetStream();
     private TcpClient _tcpClient;
-
-    private static uint BufferSize => ClientsHandler.BufferSize;
     
     private const ushort Port = 47921;
 
     [SetUp]
-    public void Setup()
+    public async Task Setup()
     {
-        _clientsHandler = new ClientsHandler("127.0.0.1", 47921);
+        _clientsHandler = new ClientsHandler("127.0.0.1", Port);
         _clientsHandler.Start();
+        
+        _tcpClient = await Tools.Connect(Port);
+
+        await Task.Delay(25);
     }
 
     [Test]
-    public async Task Connect()
+    public void Connect()
     {
-        _tcpClient = await Tools.Connect(Port);
-
-        Assert.IsTrue(_tcpClient.Connected);
+        Assert.IsTrue(_tcpClient.Connected == true && _clientsHandler?.HasClients == true);
     }
     
     // Handle Close command.
     [Test]
     public async Task Disconnect()
     {
-        _tcpClient = await Tools.Connect(Port);
-        
         await Tools.WriteAsync(ClientsHandler.CloseCommand, NetworkStream);
 
-        Assert.Pass();
-        // Assert.IsFalse(_clientsHandler?.HasClients); todo: implement HasClients.
+        await Task.Delay(25);
+
+        Assert.IsFalse(_clientsHandler?.HasClients);
     }
     
     [Test]
     public async Task UnknownCommand()
     {
-        _tcpClient = await Tools.Connect(Port);
-
         await Tools.WriteAsync("some-shit", NetworkStream);
         
-        string response = await Tools.ReadAsync(BufferSize, NetworkStream, new CancellationTokenSource(10 * 1000).Token);
+        string response = await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(10 * 1000).Token);
         
         Assert.IsTrue(response == ClientsHandler.UnknownCommandResponse);
     }
     
     [Test]
-    public async Task GetLobbyCount()
+    public async Task GetLobbyGuids()
     {
-        _tcpClient = await Tools.Connect(Port);
+        List<Guid> guids = Tools.RegisterRandomLobbyInfo(5);
 
-        await Tools.WriteAsync(ClientsHandler.GetCountCommand, NetworkStream);
+        await Tools.WriteAsync(ClientsHandler.GetGuidsCommand, NetworkStream);
         
-        // Get lobby count.
-        string lobbyCountString = await Tools.ReadAsync(BufferSize, NetworkStream, new CancellationTokenSource(10 * 1000).Token);
-        int lobbyCount = int.Parse(lobbyCountString);
+        // Get lobby guids.
+        string lobbyGuidsJson = await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(10 * 1000).Token);
+        List<Guid>? lobbyGuids = JsonConvert.DeserializeObject<List<Guid>>(lobbyGuidsJson);
 
-        Assert.True(lobbyCount == 0);
+        if (lobbyGuids == null)
+        {
+            Assert.Fail();
+            return;
+        }
+
+        for (var i = 0; i < Program.LobbyInfos.Keys.Count; i++)
+        {
+            if (guids.Contains(lobbyGuids[i]) == true)
+            {
+                continue;
+            }
+            
+            Assert.Fail();
+        }
     }
     
     [Test]
     public async Task GetLobbyInfo()
     {
-        _tcpClient = await Tools.Connect(Port);
+        List<Guid> guids = Tools.RegisterRandomLobbyInfo(5);
 
-        const int lobbiesToAdd = 4;
-        for (var i = 0; i < lobbiesToAdd; i++)
+        foreach (Guid uid in guids)
         {
-            LobbyInfo lobbyInfo = Tools.GetRandomLobbyInfo();
-            Tools.RegisterLobbyInfo(lobbyInfo);
-        }
-        
-        for (var i = 0; i < lobbiesToAdd; i++)
-        {
-            await Tools.WriteAsync($"{ClientsHandler.GetInfoCommand} {i}", NetworkStream);
+            await Tools.WriteAsync($"{ClientsHandler.GetInfoCommand} {uid}", NetworkStream);
                 
-            string response = await Tools.ReadAsync(BufferSize, NetworkStream, new CancellationTokenSource(10 * 1000).Token);
+            string response = await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(10 * 1000).Token);
 
             // Parsing json to LobbyInfo[] and return it.
             LobbyInfo? lobbyInfo = JsonConvert.DeserializeObject<LobbyInfo>(response);
@@ -94,22 +99,16 @@ public class ClientTests
                 Assert.Fail();
                 return;
             }
-            
-            if (lobbyInfo.ValuesEquals(Program.LobbyInfos[i]) == true)
-            {
-                Assert.Pass();
-            }
-            else
-            {
-                Assert.Fail();
-            }
+
+            Assert.IsTrue(lobbyInfo.ValuesEquals(Program.LobbyInfos[uid]) == true);
         }
     }
 
     [TearDown]
     public void DisposeTcpClient()
     {
+        _clientsHandler?.Stop();
         Program.LobbyInfos.Clear();
-        Tools.DisposeTcpClient(_tcpClient);
+        Tools.CloseTcpClient(_tcpClient);
     }
 }

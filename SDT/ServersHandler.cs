@@ -12,12 +12,30 @@ public class ServersHandler
 {
     public const uint BufferSize = 512;
 
+    public bool HasServers
+    {
+        get
+        {
+            lock (_serversListLock)
+            {
+                return _servers.Any();
+            }
+        }
+    }
+
     public const string CloseCommand = "close";
     private const string CheckCommand = "check";
 
     private readonly string _ipAddress;
     private readonly int _port;
+    
+    // Local list of connected SnaP Servers.
+    private readonly List<Guid> _servers = new();
 
+    private readonly object _serversListLock = new();
+
+    private TcpListener? _server;
+    
     public ServersHandler(string ipAddress, int port)
     {
         _ipAddress = ipAddress;
@@ -25,25 +43,24 @@ public class ServersHandler
     }
 
     public async void Start()
-    {
-        TcpListener server = null!;
+    { 
         try
         {
             IPAddress ipAddress = IPAddress.Parse(_ipAddress);
 
             // TcpListener is used to wait for a connection from a client.
-            server = new TcpListener(ipAddress, _port);
+            _server = new TcpListener(ipAddress, _port);
 
             // Start listening for client requests.
-            server.Start();
+            _server.Start();
 
-            Console.WriteLine($"[SERVER] Server for SnaP SERVERS started at {_ipAddress}:{_port}. Waiting for connections...");
+            Console.WriteLine($"[SH] Server for SnaP SERVERS started at {_ipAddress}:{_port}. Waiting for connections...");
 
             while (true)
             {
                 // Blocks until a client has connected to the server.
-                TcpClient client = await server.AcceptTcpClientAsync();
-                Console.WriteLine("[SERVER] Client connected!");
+                TcpClient client = await _server.AcceptTcpClientAsync();
+                Console.WriteLine("[SH] Client connected!");
 
                 // Create a thread to handle the client communication.
                 Thread clientThread = new(Handle);
@@ -52,17 +69,21 @@ public class ServersHandler
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            Console.WriteLine("[SH] Exception: " + e.Message);
         }
         finally
         {
             // Stop listening for new clients.
-            server?.Stop();
+            Stop();
         }
+        
+        Console.WriteLine("[SH] Server closing...");
     }
     
     private async void Handle(object? obj)
     {
+        Guid guid = Guid.NewGuid();
+
         TcpClient tcpClient;
         try
         {
@@ -70,12 +91,19 @@ public class ServersHandler
         }
         catch (Exception e)
         {
-            Console.WriteLine($"[SERVER-{Environment.CurrentManagedThreadId}] Error on parse obj to TcpClient. {e}");
+            Console.WriteLine($"[SH/{guid}] Error on parse obj to TcpClient. {e}");
             throw;
         }
         
         NetworkStream clientStream = tcpClient.GetStream();
 
+        Console.WriteLine($"[SH/{guid}] Client connected!");
+        
+        lock (_serversListLock)
+        {
+            _servers.Add(guid);
+        }
+        
         // Buffer to store the response bytes.
         var message = new byte[BufferSize];
 
@@ -97,7 +125,7 @@ public class ServersHandler
                 break;
             }
 
-            // Read the incoming message. Expected json lobby info.
+            // Read the incoming message. Expecting json lobby info.
             try
             {
                 // Read the incoming message.
@@ -111,13 +139,13 @@ public class ServersHandler
             
             if (bytesRead <= 0)
             {
-                Console.WriteLine($"[SERVER-{Environment.CurrentManagedThreadId}] Client closed connection.");
+                Console.WriteLine($"[SH/{guid}] Client closed connection.");
                 break;
             }
 
-            // Convert the bytes to a string and print it.
+            // Convert bytes to a string and print it.
             string clientMessage = Encoding.ASCII.GetString(message, 0, bytesRead);
-            Console.WriteLine($"[SERVER-{Environment.CurrentManagedThreadId}] Received: {clientMessage}");
+            Console.WriteLine($"[SH/{guid}] Received: {clientMessage}");
 
             if (clientMessage == CloseCommand)
             {
@@ -128,26 +156,36 @@ public class ServersHandler
             try
             {
                 LobbyInfo lobbyInfoCopy = JsonConvert.DeserializeObject<LobbyInfo>(clientMessage)!;
-                lobbyInfoCopy.Deconstruct(ref lobbyInfo);
+                lobbyInfoCopy.Deconstruct(ref lobbyInfo); // Update info.
             }
             catch (Exception e)
             {
-                Console.WriteLine($"[SERVER-{Environment.CurrentManagedThreadId}] Can`t deserialize json to LobbyInfo. " + e);
+                Console.WriteLine($"[SH/{guid}] Can`t deserialize json to LobbyInfo. " + e);
                 continue;
             }
 
-            if (Program.LobbyInfos.Contains(lobbyInfo) == true)
+            if (Program.LobbyInfos.ContainsKey(guid) == true)
             {
                 continue;
             }
-
-            Console.WriteLine($"[SERVER-{Environment.CurrentManagedThreadId}] Added new lobby info.");
-            Program.LobbyInfos.Add(lobbyInfo);
+            
+            Console.WriteLine($"[SH/{guid}] Added new lobby info.");
+            Program.LobbyInfos.TryAdd(guid, lobbyInfo);
         }
 
-        Program.LobbyInfos.Remove(lobbyInfo);
+        Program.LobbyInfos.TryRemove(guid, out _);
+        
+        lock (_serversListLock)
+        {
+            _servers.Remove(guid);
+        }
 
-        Console.WriteLine($"[SERVER-{Environment.CurrentManagedThreadId}] Closing connection.");
+        Console.WriteLine($"[SH/{guid}] Closing connection.");
         tcpClient.Close();
+    }
+
+    public void Stop()
+    {
+        _server?.Stop();
     }
 }

@@ -1,11 +1,12 @@
-﻿using System.Net;
+﻿using System.Collections.Concurrent;
+using System.Net;
 using System.Net.Sockets;
 
 namespace SDT;
 
 public class Program
 {
-    public static readonly List<LobbyInfo> LobbyInfos = new();
+    public static readonly ConcurrentDictionary<Guid, LobbyInfo> LobbyInfos = new();
     
     private const ushort ServerPort = 47920;
     private const ushort ClientPort = 47921;
