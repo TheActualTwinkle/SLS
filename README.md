@@ -2,9 +2,8 @@
 SDT - [SnaP](https://github.com/TheActualTwinkle/SnaP) Data Transfer
 
 ## What is this?
-* Using *TCP/UDP*  we getting data about Game Lobbies from **SnaP** game (as Server/Host)
+* Using *TCP*  we getting data about Game Lobbies from **SnaP** Server/Host
 * Store them 
-* Send this data to **SnaP** game  (as Client)
+* Send this data to **SnaP** Clients
 
-![WorkingPrincipe](GitImages/SDT.png)
-
+![WorkingPrincipe](GitImages/SDT_en.png)
