@@ -61,9 +61,7 @@ public class ClientsHandler
                 // Blocks until a client has connected to the server.
                 TcpClient client = await _server.AcceptTcpClientAsync();
 
-                // Create a thread to handle the client communication.
-                Thread clientThread = new(Handle);
-                clientThread.Start(client);
+                Task.Run(() => Handle(client));
             }
         }
         catch (Exception e)
@@ -79,7 +77,7 @@ public class ClientsHandler
         Console.WriteLine("[CH] Server closing...");
     }
 
-    private async void Handle(object obj)
+    private async void Handle(object? obj)
     {
         Guid guid = Guid.NewGuid();
 

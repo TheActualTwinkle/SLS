@@ -33,7 +33,7 @@ public class ServerTests
     [Test]
     public async Task Disconnect()
     {
-        await Tools.WriteAsync(ClientsHandler.CloseCommand, NetworkStream);
+        await Tools.WriteAsync(ServersHandler.CloseCommand, NetworkStream);
 
         await Task.Delay(25);
 
