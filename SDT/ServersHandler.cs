@@ -10,7 +10,7 @@ namespace SDT;
 /// </summary>
 public class ServersHandler
 {
-    public const uint BufferSize = 512;
+    private const uint BufferSize = 512;
 
     public bool HasServers
     {
@@ -61,9 +61,7 @@ public class ServersHandler
                 // Blocks until a client has connected to the server.
                 TcpClient client = await _server.AcceptTcpClientAsync();
 
-                // Create a thread to handle the client communication.
-                Thread clientThread = new(Handle);
-                clientThread.Start(client); 
+                Task.Run(() => Handle(client));
             }
         }
         catch (Exception e)
