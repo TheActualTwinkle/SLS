@@ -23,6 +23,9 @@ public class ClientsHandler
         }
     }
     
+    public const string GetStatusCommand = "get-status";
+    public const string GetStatusCommandResponse = "ok";
+    
     public const string GetGuidsCommand = "get-guids";
     public const string GetInfoCommand = "get-info";
     public const string CloseCommand = "close";
@@ -129,44 +132,31 @@ public class ClientsHandler
             
             string messageString = Encoding.ASCII.GetString(message, 0, bytesRead).ToLower();
             
-            if (messageString == CloseCommand)
+            switch (messageString)
             {
-                HandleCloseCommand(guid);
-                break;
-            }
-            
-            if (messageString == GetGuidsCommand)
-            {
-                try
-                {
+                case CloseCommand:
+                    HandleCloseCommand(guid);
+                    return;
+                case GetStatusCommand:
+                    await HandleGetStatusCommand(clientStream, guid);
+                    break;
+                case GetGuidsCommand:
                     await HandleGetGuidsCommand(clientStream, guid);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
                     break;
-                }
-            }
-            else if (messageString.Contains(GetInfoCommand) == true)
-            {
-                if (await HandleGetInfoCommand(messageString, clientStream, guid) == false)
-                {
+                default:
+                    if (messageString.Contains(GetInfoCommand))
+                    {
+                        await HandleGetInfoCommand(messageString, clientStream, guid);
+                    }
+                    else
+                    {
+                        HandleUnknownCommand(messageString, clientStream, guid);
+                    }
                     break;
-                }
-            }
-            else
-            {
-                HandleUnknownCommand(messageString, clientStream, guid);
             }
         }
 
-        lock (_clientsListLock)
-        {
-            _clients.Remove(guid);
-        }
-        
-        Console.WriteLine($"[CH/{guid}] Closing connection.");
-        tcpClient.Close();
+        DropClient(guid, tcpClient);
     }
 
     public void Stop()
@@ -174,41 +164,84 @@ public class ClientsHandler
         _server?.Stop();
     }
 
-    #region CommandHandlers
-
-    private static async Task HandleGetGuidsCommand(NetworkStream clientStream, Guid chGuid)
+    private void DropClient(Guid guid, TcpClient tcpClient)
     {
-        string keysJson = JsonConvert.SerializeObject(Program.LobbyInfos.Keys);
-        byte[] keysAsBytes = Encoding.ASCII.GetBytes(keysJson);
+        lock (_clientsListLock)
+        {
+            _clients.Remove(guid);
+        }
         
-        await clientStream.WriteAsync(keysAsBytes);
+        Console.WriteLine($"[CH/{guid}] Dropping client.");
+        tcpClient.Close();
+    }
+    
+    private async Task SendErrorMessage(NetworkStream clientStream, string errorMessage)
+    {
+        Console.WriteLine(errorMessage);
         
-        Console.WriteLine($"[CH/{chGuid}] Sent lobbies Guids. Count: {Program.LobbyInfos.Count}.");
+        byte[] errorMessageBytes = Encoding.ASCII.GetBytes(errorMessage);
+        await clientStream.WriteAsync(errorMessageBytes);
     }
 
-    private static async Task<bool> HandleGetInfoCommand(string messageString, NetworkStream clientStream, Guid chGuid)
-    {
-        int indexOfSeparator = messageString.IndexOf(' ');
-        indexOfSeparator++;
+    #region CommandHandlers
 
-        if (indexOfSeparator == -1)
+    private async Task HandleGetStatusCommand(NetworkStream clientStream, Guid chGuid)
+    {
+        try
         {
-            Console.WriteLine($"[CH/{chGuid}] Can`t find index of separator in message.");
-            return false;
+            byte[] response = Encoding.ASCII.GetBytes(GetStatusCommandResponse);
+            await clientStream.WriteAsync(response.ToArray());
+        
+            Console.WriteLine($"[CH/{chGuid}] Sent status.");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+    }
+    
+    private async Task HandleGetGuidsCommand(NetworkStream clientStream, Guid chGuid)
+    {
+        try
+        {
+            string keysJson = JsonConvert.SerializeObject(Program.LobbyInfos.Keys);
+            byte[] keysAsBytes = Encoding.ASCII.GetBytes(keysJson);
+        
+            await clientStream.WriteAsync(keysAsBytes);
+        
+            Console.WriteLine($"[CH/{chGuid}] Sent lobbies Guids. Count: {Program.LobbyInfos.Count}.");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+    }
+
+    private async Task HandleGetInfoCommand(string messageString, NetworkStream clientStream, Guid chGuid)
+    {
+        int indexOfSeparator = messageString.IndexOf(' ') + 1;
+
+        if (indexOfSeparator == 0)
+        {
+            var errorMessage = $"[CH/{chGuid}] Can't find index of separator in message.";
+            await SendErrorMessage(clientStream, errorMessage);
+            return;
         }
 
         string guidString = messageString[indexOfSeparator..];
 
         if (Guid.TryParse(guidString, out Guid guid) == false)
         {
-            Console.WriteLine($"[CH/{chGuid}] Can`t parse guid from message: {guidString}");
-            return false;
+            var errorMessage = $"[CH/{chGuid}] Can't parse guid from message: {guidString}";
+            await SendErrorMessage(clientStream, errorMessage);
+            return;
         }
 
         if (Program.LobbyInfos.ContainsKey(guid) == false)
         {
-            Console.WriteLine($"[CH/{chGuid}] Can`t find entry with wanted guid: {guid}.");
-            return false;
+            var errorMessage = $"[CH/{chGuid}] Can't find entry with wanted guid: {guid}.";
+            await SendErrorMessage(clientStream, errorMessage);
+            return;
         }
 
         try
@@ -224,18 +257,16 @@ public class ClientsHandler
         catch (Exception e)
         {
             Console.WriteLine(e.Message);
-            return false;
         }
-
-        return true;
     }
 
-    private static void HandleCloseCommand(Guid chGuid)
+    private void HandleCloseCommand(Guid chGuid)
     {
         Console.WriteLine($"[CH/{chGuid}] Client closed connection.");
+        DropClient(chGuid, new TcpClient());
     }
     
-    private static async void HandleUnknownCommand(string messageString, NetworkStream clientStream, Guid chGuid)
+    private async void HandleUnknownCommand(string messageString, NetworkStream clientStream, Guid chGuid)
     {
         byte[] length = "Unknown command."u8.ToArray();
         await clientStream.WriteAsync(length);

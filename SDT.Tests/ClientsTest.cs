@@ -21,8 +21,6 @@ public class ClientTests
         _clientsHandler.Start();
         
         _tcpClient = await Tools.Connect(Port);
-
-        await Task.Delay(25);
     }
 
     [Test]
@@ -37,9 +35,25 @@ public class ClientTests
     {
         await Tools.WriteAsync(ClientsHandler.CloseCommand, NetworkStream);
 
-        await Task.Delay(25);
-
         Assert.IsFalse(_clientsHandler?.HasClients);
+    }
+    
+    [Test]
+    public async Task DropConnection()
+    {
+        await Tools.Disconnect(_tcpClient);
+        
+        Assert.IsFalse(_clientsHandler?.HasClients);
+    }
+    
+    [Test]
+    public async Task GetStatus()
+    {
+        await Tools.WriteAsync(ClientsHandler.GetStatusCommand, NetworkStream);
+        
+        string response = await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(10 * 1000).Token);
+        
+        Assert.IsTrue(response == ClientsHandler.GetStatusCommandResponse);
     }
     
     [Test]
@@ -105,10 +119,10 @@ public class ClientTests
     }
 
     [TearDown]
-    public void DisposeTcpClient()
+    public void Cleanup()
     {
         _clientsHandler?.Stop();
         Program.LobbyInfos.Clear();
-        Tools.CloseTcpClient(_tcpClient);
+        Tools.Disconnect(_tcpClient);
     }
 }

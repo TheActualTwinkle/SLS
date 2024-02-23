@@ -23,8 +23,10 @@ public class ServersHandler
         }
     }
 
+    public const string GetStatusCommand = "get-status";
+    public const string GetStatusCommandResponse = "ok";
+
     public const string CloseCommand = "close";
-    private const string CheckCommand = "check";
 
     private readonly string _ipAddress;
     private readonly int _port;
@@ -109,18 +111,6 @@ public class ServersHandler
         while (true)
         {
             int bytesRead;
-            
-            // Send check command to client.
-            // If cant write to stream the exception will be raised - client will be closed.
-            try
-            {
-                await clientStream.WriteAsync(Encoding.ASCII.GetBytes(CheckCommand).AsMemory(0, CheckCommand.Length));
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                break;
-            }
 
             // Read the incoming message. Expecting json lobby info.
             try
@@ -147,6 +137,12 @@ public class ServersHandler
             if (clientMessage == CloseCommand)
             {
                 break;
+            }
+
+            if (clientMessage == GetStatusCommand)
+            {
+                await SendStatusAsync(tcpClient.GetStream());
+                continue;
             }
             
             // Parsing json to LobbyInfo.
@@ -184,5 +180,11 @@ public class ServersHandler
     public void Stop()
     {
         _server?.Stop();
+    }
+    
+    private async Task SendStatusAsync(NetworkStream clientStream)
+    {
+        byte[] response = Encoding.ASCII.GetBytes(GetStatusCommandResponse);
+        await clientStream.WriteAsync(response.AsMemory(0, response.Length));
     }
 }
