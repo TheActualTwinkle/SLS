@@ -132,6 +132,9 @@ public class ServersHandler
 
             // Convert bytes to a string and print it.
             string clientMessage = Encoding.ASCII.GetString(message, 0, bytesRead);
+            clientMessage = clientMessage.Replace("\n", string.Empty);
+            clientMessage = clientMessage.Replace("\r", string.Empty);
+            
             Console.WriteLine($"[SH/{guid}] Received: {clientMessage}");
 
             if (clientMessage == CloseCommand)

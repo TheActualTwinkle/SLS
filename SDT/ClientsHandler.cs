@@ -84,16 +84,7 @@ public class ClientsHandler
     {
         Guid guid = Guid.NewGuid();
 
-        TcpClient tcpClient;
-        try
-        {
-            tcpClient = (TcpClient)obj!;
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"[CH/{guid}] Error on parse obj to TcpClient. {e}");
-            throw;
-        }
+        TcpClient tcpClient = (TcpClient)obj!;
         
         NetworkStream clientStream = tcpClient.GetStream();
 
@@ -131,6 +122,8 @@ public class ClientsHandler
             }
             
             string messageString = Encoding.ASCII.GetString(message, 0, bytesRead).ToLower();
+            messageString = messageString.Replace("\n", string.Empty);
+            messageString = messageString.Replace("\r", string.Empty);
             
             switch (messageString)
             {
@@ -256,7 +249,8 @@ public class ClientsHandler
         }
         catch (Exception e)
         {
-            Console.WriteLine(e.Message);
+            var errorMessage = $"[CH/{chGuid}] Unexpected error: {e}.";
+            await SendErrorMessage(clientStream, errorMessage);
         }
     }
 
