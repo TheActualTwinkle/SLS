@@ -5,11 +5,35 @@ namespace SDT.Tests;
 
 public static class Tools
 {
+    private const int EndDelayMs = 25;    
+    
+    public static async Task<TcpClient> Connect(ushort port)
+    {
+        TcpClient tcpClient = new();
+        await tcpClient.ConnectAsync("127.0.0.1", port);
+
+        await Task.Delay(EndDelayMs);
+        
+        return tcpClient;
+    }
+
+    public static async Task Disconnect(TcpClient tcpClient)
+    {
+        if (tcpClient.Connected == true)
+        {
+            tcpClient.Close();
+        }
+        
+        await Task.Delay(EndDelayMs);
+    }
+    
     public static async Task WriteAsync(string message, NetworkStream stream)
     {
         byte[] data = Encoding.ASCII.GetBytes(message);
             
         await stream.WriteAsync(data, 0, data.Length);
+        
+        await Task.Delay(EndDelayMs);
     }
 
     public static async Task<string> ReadAsync(NetworkStream stream, CancellationToken ct)
@@ -42,41 +66,10 @@ public static class Tools
             }
         }
         
+        await Task.Delay(EndDelayMs, ct);
+        
         // Convert the accumulated bytes to a string using ASCII encoding
         return Encoding.ASCII.GetString(memoryStream.ToArray());
-    }
-    
-    public static async Task<TcpClient> Connect(ushort port)
-    {
-        TcpClient tcpClient = new();
-        await tcpClient.ConnectAsync("127.0.0.1", port);
-
-        return tcpClient;
-    }
-
-    public static void CloseTcpClient(TcpClient tcpClient)
-    {
-        tcpClient.Close();
-    }
-    
-    public static void RegisterLobbyInfo(Guid guid, LobbyInfo lobbyInfo)
-    {
-        Program.LobbyInfos.TryAdd(guid, lobbyInfo);
-    }
-    
-    public static LobbyInfo GetRandomLobbyInfo()
-    {
-        Random random = new();
-        
-        const string ipAddress = "127.0.0.1";
-        var port = (ushort)random.Next(0, 10000);
-        
-        int maxSeats = random.Next(0, 100);
-        int playerCount = random.Next(0, maxSeats);
-        
-        string name = "TestLobby_" + random.Next(-100, 100);
-
-        return new LobbyInfo(ipAddress, port, maxSeats, playerCount, name);
     }
 
     /// <summary>
@@ -100,5 +93,25 @@ public static class Tools
         }
 
         return uids;
+    }
+
+    public static LobbyInfo GetRandomLobbyInfo()
+    {
+        Random random = new();
+        
+        const string ipAddress = "127.0.0.1";
+        var port = (ushort)random.Next(0, 10000);
+        
+        int maxSeats = random.Next(0, 100);
+        int playerCount = random.Next(0, maxSeats);
+        
+        string name = "TestLobby_" + random.Next(-100, 100);
+
+        return new LobbyInfo(ipAddress, port, maxSeats, playerCount, name);
+    }
+
+    private static void RegisterLobbyInfo(Guid guid, LobbyInfo lobbyInfo)
+    {
+        Program.LobbyInfos.TryAdd(guid, lobbyInfo);
     }
 }

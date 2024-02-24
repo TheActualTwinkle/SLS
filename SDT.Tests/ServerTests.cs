@@ -19,8 +19,6 @@ public class ServerTests
         _serversHandler.Start();        
         
         _tcpClient = await Tools.Connect(Port);
-        
-        await Task.Delay(25);
     }
     
     [Test]
@@ -34,39 +32,43 @@ public class ServerTests
     public async Task Disconnect()
     {
         await Tools.WriteAsync(ServersHandler.CloseCommand, NetworkStream);
-
-        await Task.Delay(25);
-
+        
         Assert.IsFalse(_serversHandler?.HasServers);
     }
 
     [Test]
-    public async Task EditLobbyInfo_LobbyInfoAsJson_LobbyInfoArrayChangesEntry()
+    public async Task DropConnection()
     {
-        LobbyInfo randomLobbyInfo1 = await SendRandomLobbyInfo();
+        await Tools.Disconnect(_tcpClient);
+        
+        Assert.IsFalse(_serversHandler?.HasServers);
+    }
 
-        await Task.Delay(25);
+    
+    [Test]
+    public async Task GetStatus()
+    {
+        await Tools.WriteAsync(ServersHandler.GetStatusCommand, NetworkStream);
+        
+        string response = await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(10 * 1000).Token);
 
-        LobbyInfo lobbyInfo = Program.LobbyInfos.Values.First();
-
-        if (lobbyInfo.ValuesEquals(randomLobbyInfo1) == false)
+        if (_serversHandler?.HasServers == false)
         {
             Assert.Fail();
         }
 
-        LobbyInfo randomLobbyInfo2 = await SendRandomLobbyInfo();
+        if (Program.LobbyInfos.IsEmpty == false)
+        {
+            Assert.Fail();
+        }
         
-        await Task.Delay(25);
-
-        Assert.IsTrue(lobbyInfo.ValuesEquals(randomLobbyInfo2));
+        Assert.IsTrue(response == ServersHandler.GetStatusCommandResponse);
     }
     
     [Test]
     public async Task AddToLobbyInfos_LobbyInfoAsJson_LobbyInfoArrayContainsEntry()
     {
         LobbyInfo randomLobbyInfo = await SendRandomLobbyInfo();
-
-        await Task.Delay(25);
 
         LobbyInfo lobbyInfo = Program.LobbyInfos.Values.First();
 
@@ -78,17 +80,32 @@ public class ServerTests
     {
         await Tools.WriteAsync("corrupted...json", NetworkStream);
         
-        await Task.Delay(25);
-        
         Assert.IsTrue(Program.LobbyInfos.Count == 0);
     }
 
+    [Test]
+    public async Task EditLobbyInfo_LobbyInfoAsJson_LobbyInfoArrayChangesEntry()
+    {
+        LobbyInfo randomLobbyInfo1 = await SendRandomLobbyInfo();
+
+        LobbyInfo lobbyInfo = Program.LobbyInfos.Values.First();
+
+        if (lobbyInfo.ValuesEquals(randomLobbyInfo1) == false)
+        {
+            Assert.Fail();
+        }
+
+        LobbyInfo randomLobbyInfo2 = await SendRandomLobbyInfo();
+
+        Assert.IsTrue(lobbyInfo.ValuesEquals(randomLobbyInfo2));
+    }
+
     [TearDown]
-    public void DisposeTcpClient()
+    public async Task Cleanup()
     {
         _serversHandler?.Stop();
         Program.LobbyInfos.Clear();
-        Tools.CloseTcpClient(_tcpClient);
+        await Tools.Disconnect(_tcpClient);
     }
 
     private async Task<LobbyInfo> SendRandomLobbyInfo()
