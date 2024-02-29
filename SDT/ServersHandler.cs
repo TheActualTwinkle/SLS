@@ -8,55 +8,35 @@ namespace SDT;
 /// <summary>
 /// Handler of SnaP servers.
 /// </summary>
-public class ServersHandler
+public class ServersHandler(string address, int port)
 {
     private const uint BufferSize = 512;
-
-    public bool HasServers
-    {
-        get
-        {
-            lock (_serversListLock)
-            {
-                return _servers.Any();
-            }
-        }
-    }
+    
+    private readonly Semaphore _clientsListSemaphore = new(1, 1);
 
     public const string GetStatusCommand = "get-status";
     public const string GetStatusCommandResponse = "ok";
 
     public const string CloseCommand = "close";
 
-    private readonly string _ipAddress;
-    private readonly int _port;
-    
     // Local list of connected SnaP Servers.
-    private readonly List<Guid> _servers = new();
-
-    private readonly object _serversListLock = new();
-
-    private TcpListener? _server;
+    private readonly List<Guid> _servers = [];
     
-    public ServersHandler(string ipAddress, int port)
-    {
-        _ipAddress = ipAddress;
-        _port = port;
-    }
+    private TcpListener? _server;
 
     public async void Start()
     { 
         try
         {
-            IPAddress ipAddress = IPAddress.Parse(_ipAddress);
+            IPAddress ipAddress = IPAddress.Parse(address);
 
             // TcpListener is used to wait for a connection from a client.
-            _server = new TcpListener(ipAddress, _port);
+            _server = new TcpListener(ipAddress, port);
 
             // Start listening for client requests.
             _server.Start();
 
-            Console.WriteLine($"[SH] Server for SnaP SERVERS started at {_ipAddress}:{_port}. Waiting for connections...");
+            Console.WriteLine($"[SH] Server for SnaP SERVERS started at {address}:{port}. Waiting for connections...");
 
             while (true)
             {
@@ -98,10 +78,9 @@ public class ServersHandler
 
         Console.WriteLine($"[SH/{guid}] Client connected!");
         
-        lock (_serversListLock)
-        {
-            _servers.Add(guid);
-        }
+        _clientsListSemaphore.WaitOne();
+        _servers.Add(guid);
+        _clientsListSemaphore.Release();
         
         // Buffer to store the response bytes.
         var message = new byte[BufferSize];
@@ -171,11 +150,10 @@ public class ServersHandler
 
         Program.LobbyInfos.TryRemove(guid, out _);
         
-        lock (_serversListLock)
-        {
-            _servers.Remove(guid);
-        }
-
+        _clientsListSemaphore.WaitOne();
+        _servers.Remove(guid);
+        _clientsListSemaphore.Release();
+        
         Console.WriteLine($"[SH/{guid}] Closing connection.");
         tcpClient.Close();
     }
@@ -183,6 +161,15 @@ public class ServersHandler
     public void Stop()
     {
         _server?.Stop();
+    }
+    
+    public bool HasServers()
+    {
+        _clientsListSemaphore.WaitOne();
+        bool any = _servers.Count != 0;
+        _clientsListSemaphore.Release();
+
+        return any;
     }
     
     private async Task SendStatusAsync(NetworkStream clientStream)
