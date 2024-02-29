@@ -27,7 +27,7 @@ public class ClientTests
     [Test]
     public void Connect()
     {
-        Assert.IsTrue(_tcpClient.Connected == true && _clientsHandler?.HasClients == true);
+        Assert.That(_tcpClient.Connected == true && _clientsHandler?.HasClients() == true, Is.True);
     }
     
     // Handle Close command.
@@ -36,7 +36,7 @@ public class ClientTests
     {
         await Tools.WriteAsync(ClientsHandler.CloseCommand, NetworkStream);
 
-        Assert.IsFalse(_clientsHandler?.HasClients);
+        Assert.That(_clientsHandler?.HasClients(), Is.False);
     }
     
     [Test]
@@ -44,7 +44,7 @@ public class ClientTests
     {
         await Tools.Disconnect(_tcpClient);
         
-        Assert.IsFalse(_clientsHandler?.HasClients);
+        Assert.That(_clientsHandler?.HasClients(), Is.False);
     }
     
     [Test]
@@ -54,7 +54,7 @@ public class ClientTests
         
         string response = await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(10 * 1000).Token);
         
-        Assert.IsTrue(response == ClientsHandler.GetStatusCommandResponse);
+        Assert.That(response, Is.EqualTo(ClientsHandler.GetStatusCommandResponse));
     }
     
     [Test]
@@ -64,7 +64,7 @@ public class ClientTests
         
         string response = await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(10 * 1000).Token);
         
-        Assert.IsTrue(response == ClientsHandler.UnknownCommandResponse);
+        Assert.That(response, Is.EqualTo(ClientsHandler.UnknownCommandResponse));
     }
     
     [Test]
@@ -120,7 +120,7 @@ public class ClientTests
         List<LobbyInfo> lobbyInfosByRequest = await GetLobbyInfosByRequest(ClientsHandler.GetInfoCommand, string.Empty, guids);
         
         // All elements should be null.
-        Assert.IsTrue(lobbyInfosByRequest.All(x => x == null!));
+        Assert.That(lobbyInfosByRequest.All(x => x == null!), Is.True);
     }
 
     [Test]
@@ -132,7 +132,7 @@ public class ClientTests
         List<LobbyInfo> lobbyInfosByRequest = await GetLobbyInfosByRequest(ClientsHandler.GetInfoCommand, " shit-", guids);
         
         // Corrupted element should be null.
-        Assert.IsTrue(lobbyInfosByRequest.All(x => x == null!));
+        Assert.That(lobbyInfosByRequest.All(x => x == null!), Is.True);
     }
 
     [Test]
@@ -141,13 +141,13 @@ public class ClientTests
         const uint randomLobbiesCount = 5;
         List<Guid> guids = Tools.RegisterRandomLobbyInfo(randomLobbiesCount);
 
-        // Generate randomLobbiesCount fake guidd.
+        // Generate randomLobbiesCount fake guid.
         guids[0] = Guid.NewGuid();
         
         List<LobbyInfo> lobbyInfosByRequest = await GetLobbyInfosByRequest(ClientsHandler.GetInfoCommand, " ", guids);
         
         // All elements should be null.
-        Assert.IsTrue(lobbyInfosByRequest[0] == null! && lobbyInfosByRequest[1..] != null!);
+        Assert.That(lobbyInfosByRequest[0] == null! && lobbyInfosByRequest[1..] != null!, Is.True);
     }
 
     [TearDown]
@@ -169,7 +169,7 @@ public class ClientTests
     /// <returns></returns>
     private async Task<List<LobbyInfo>> GetLobbyInfosByRequest(string requestTemplate, string separator, IEnumerable<Guid> guids)
     {
-        List<LobbyInfo> lobbyInfos = new();
+        List<LobbyInfo> lobbyInfos = [];
 
         foreach (Guid guid in guids)
         {
