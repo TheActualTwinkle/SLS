@@ -24,7 +24,7 @@ public class ServerTests
     [Test]
     public void Connect()
     {
-        Assert.IsTrue(_tcpClient.Connected == true && _serversHandler?.HasServers == true);
+        Assert.That(_tcpClient.Connected == true && _serversHandler?.HasServers() == true, Is.True);
     }
     
     // Handle Close command.
@@ -33,7 +33,7 @@ public class ServerTests
     {
         await Tools.WriteAsync(ServersHandler.CloseCommand, NetworkStream);
         
-        Assert.IsFalse(_serversHandler?.HasServers);
+        Assert.That(_serversHandler?.HasServers(), Is.False);
     }
 
     [Test]
@@ -41,7 +41,7 @@ public class ServerTests
     {
         await Tools.Disconnect(_tcpClient);
         
-        Assert.IsFalse(_serversHandler?.HasServers);
+        Assert.That(_serversHandler?.HasServers(), Is.False);
     }
 
     
@@ -52,7 +52,7 @@ public class ServerTests
         
         string response = await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(10 * 1000).Token);
 
-        if (_serversHandler?.HasServers == false)
+        if (_serversHandler?.HasServers() == false)
         {
             Assert.Fail();
         }
@@ -62,7 +62,7 @@ public class ServerTests
             Assert.Fail();
         }
         
-        Assert.IsTrue(response == ServersHandler.GetStatusCommandResponse);
+        Assert.That(response, Is.EqualTo(ServersHandler.GetStatusCommandResponse));
     }
     
     [Test]
@@ -72,7 +72,7 @@ public class ServerTests
 
         LobbyInfo lobbyInfo = Program.LobbyInfos.Values.First();
 
-        Assert.IsTrue(lobbyInfo.ValuesEquals(randomLobbyInfo));
+        Assert.That(lobbyInfo.ValuesEquals(randomLobbyInfo), Is.True);
     }
 
     [Test]
@@ -80,7 +80,7 @@ public class ServerTests
     {
         await Tools.WriteAsync("corrupted...json", NetworkStream);
         
-        Assert.IsTrue(Program.LobbyInfos.Count == 0);
+        Assert.That(Program.LobbyInfos.IsEmpty, Is.True);
     }
 
     [Test]
@@ -97,7 +97,7 @@ public class ServerTests
 
         LobbyInfo randomLobbyInfo2 = await SendRandomLobbyInfo();
 
-        Assert.IsTrue(lobbyInfo.ValuesEquals(randomLobbyInfo2));
+        Assert.That(lobbyInfo.ValuesEquals(randomLobbyInfo2), Is.True);
     }
 
     [TearDown]
