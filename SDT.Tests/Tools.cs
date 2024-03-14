@@ -1,5 +1,6 @@
 ﻿using System.Net.Sockets;
 using System.Text;
+using SDT.Commands;
 
 namespace SDT.Tests;
 
@@ -27,8 +28,9 @@ public static class Tools
         await Task.Delay(EndDelayMs);
     }
     
-    public static async Task WriteAsync(string message, NetworkStream stream)
+    public static async Task WriteCommandAsync(Command command, NetworkStream stream)
     {
+        string message = CommandParser.ToJson(command)!;
         byte[] data = Encoding.ASCII.GetBytes(message);
             
         await stream.WriteAsync(data, 0, data.Length);
@@ -79,7 +81,7 @@ public static class Tools
     /// <returns>Guid list of created lobby infos</returns>
     public static List<Guid> RegisterRandomLobbyInfo(uint count)
     {
-        List<Guid> uids = new();
+        List<Guid> uids = [];
 
         for (var i = 0; i < count; i++)
         {
@@ -95,6 +97,10 @@ public static class Tools
         return uids;
     }
 
+    /// <summary>
+    /// Creates lobby info with random values and registers it in Program.LobbyInfos dictionary.
+    /// </summary>
+    /// <returns>Created lobby info</returns>
     public static LobbyInfo GetRandomLobbyInfo()
     {
         Random random = new();
@@ -109,7 +115,7 @@ public static class Tools
 
         return new LobbyInfo(ipAddress, port, maxSeats, playerCount, name);
     }
-
+    
     private static void RegisterLobbyInfo(Guid guid, LobbyInfo lobbyInfo)
     {
         Program.LobbyInfos.TryAdd(guid, lobbyInfo);

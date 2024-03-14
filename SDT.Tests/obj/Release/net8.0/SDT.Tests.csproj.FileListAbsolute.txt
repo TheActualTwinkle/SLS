@@ -104,3 +104,8 @@ C:\CSharp\SDT\SDT.Tests\obj\Release\net8.0\refint\SDT.Tests.dll
 C:\CSharp\SDT\SDT.Tests\obj\Release\net8.0\SDT.Tests.pdb
 C:\CSharp\SDT\SDT.Tests\obj\Release\net8.0\SDT.Tests.genruntimeconfig.cache
 C:\CSharp\SDT\SDT.Tests\obj\Release\net8.0\ref\SDT.Tests.dll
+C:\CSharp\SDT\SDT.Tests\bin\Release\net8.0\System.Composition.AttributedModel.dll
+C:\CSharp\SDT\SDT.Tests\bin\Release\net8.0\System.Composition.Convention.dll
+C:\CSharp\SDT\SDT.Tests\bin\Release\net8.0\System.Composition.Hosting.dll
+C:\CSharp\SDT\SDT.Tests\bin\Release\net8.0\System.Composition.Runtime.dll
+C:\CSharp\SDT\SDT.Tests\bin\Release\net8.0\System.Composition.TypedParts.dll

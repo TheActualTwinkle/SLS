@@ -1,7 +1,7 @@
 using System.Net.Sockets;
-using System.Text;
-using System.Xml;
 using Newtonsoft.Json;
+using SDT.Clients;
+using SDT.Commands;
 
 namespace SDT.Tests;
 
@@ -34,7 +34,7 @@ public class ClientTests
     [Test]
     public async Task Disconnect()
     {
-        await Tools.WriteAsync(ClientsHandler.CloseCommand, NetworkStream);
+        await Tools.WriteCommandAsync(new Command(CommandType.Close), NetworkStream);
 
         Assert.That(_clientsHandler?.HasClients(), Is.False);
     }
@@ -50,19 +50,19 @@ public class ClientTests
     [Test]
     public async Task GetStatus()
     {
-        await Tools.WriteAsync(ClientsHandler.GetStatusCommand, NetworkStream);
+        await Tools.WriteCommandAsync(new Command(CommandType.GetStatus), NetworkStream);
         
-        string response = await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(10 * 1000).Token);
+        string response = await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token);
         
-        Assert.That(response, Is.EqualTo(ClientsHandler.GetStatusCommandResponse));
+        Assert.That(response, Is.EqualTo(ClientsHandler.GetStatusSuccessResponse));
     }
     
     [Test]
     public async Task UnknownCommand()
     {
-        await Tools.WriteAsync("some-shit", NetworkStream);
+        await Tools.WriteCommandAsync(new Command(), NetworkStream);
         
-        string response = await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(10 * 1000).Token);
+        string response = await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token);
         
         Assert.That(response, Is.EqualTo(ClientsHandler.UnknownCommandResponse));
     }
@@ -72,10 +72,10 @@ public class ClientTests
     {
         List<Guid> guids = Tools.RegisterRandomLobbyInfo(5);
 
-        await Tools.WriteAsync(ClientsHandler.GetGuidsCommand, NetworkStream);
+        await Tools.WriteCommandAsync(new Command(CommandType.GetLobbyGuids), NetworkStream);
         
         // Get lobby guids.
-        string lobbyGuidsJson = await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(10 * 1000).Token);
+        string lobbyGuidsJson = await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token);
         List<Guid>? lobbyGuids = JsonConvert.DeserializeObject<List<Guid>>(lobbyGuidsJson);
 
         if (lobbyGuids == null)
@@ -100,7 +100,7 @@ public class ClientTests
         const uint randomLobbiesCount = 5;
         List<Guid> guids = Tools.RegisterRandomLobbyInfo(randomLobbiesCount);
 
-        List<LobbyInfo> lobbyInfosByRequest = await GetLobbyInfosByRequest(ClientsHandler.GetInfoCommand, " ", guids);
+        List<LobbyInfo> lobbyInfosByRequest = await GetLobbyInfosByRequest(guids);
         
         for (var i = 0; i < guids.Count; i++)
         {
@@ -112,27 +112,20 @@ public class ClientTests
     }
 
     [Test]
-    public async Task GetLobbyInfo_RequestWithMissingSeparator_ArrayOfNull()
-    {
-        const uint randomLobbiesCount = 5;
-        List<Guid> guids = Tools.RegisterRandomLobbyInfo(randomLobbiesCount);
-
-        List<LobbyInfo> lobbyInfosByRequest = await GetLobbyInfosByRequest(ClientsHandler.GetInfoCommand, string.Empty, guids);
-        
-        // All elements should be null.
-        Assert.That(lobbyInfosByRequest.All(x => x == null!), Is.True);
-    }
-
-    [Test]
     public async Task GetLobbyInfo_RequestWithCorruptedGuids_ArrayOfNull()
     {
-        const uint randomLobbiesCount = 5;
-        List<Guid> guids = Tools.RegisterRandomLobbyInfo(randomLobbiesCount);
+        await Tools.WriteCommandAsync(new Command(CommandType.GetInfo, "bad-guid"), NetworkStream);
+        string response = await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token);
 
-        List<LobbyInfo> lobbyInfosByRequest = await GetLobbyInfosByRequest(ClientsHandler.GetInfoCommand, " shit-", guids);
-        
-        // Corrupted element should be null.
-        Assert.That(lobbyInfosByRequest.All(x => x == null!), Is.True);
+        try
+        {
+            JsonConvert.DeserializeObject<LobbyInfo?>(response);
+            Assert.Fail();
+        }
+        catch (JsonSerializationException e)
+        {
+            Assert.Pass();
+        }
     }
 
     [Test]
@@ -144,10 +137,18 @@ public class ClientTests
         // Generate randomLobbiesCount fake guid.
         guids[0] = Guid.NewGuid();
         
-        List<LobbyInfo> lobbyInfosByRequest = await GetLobbyInfosByRequest(ClientsHandler.GetInfoCommand, " ", guids);
+        List<LobbyInfo> lobbyInfosByRequest = await GetLobbyInfosByRequest(guids);
         
         // All elements should be null.
         Assert.That(lobbyInfosByRequest[0] == null! && lobbyInfosByRequest[1..] != null!, Is.True);
+    }
+    
+    [Test]
+    public async Task UnsupportedCommand()
+    {
+        await Tools.WriteCommandAsync(new Command(CommandType.PostLobbyInfo), NetworkStream);
+        
+        Assert.That(_clientsHandler!.HasClients() == true && Program.LobbyInfos.IsEmpty, Is.True);
     }
 
     [TearDown]
@@ -163,27 +164,24 @@ public class ClientTests
     /// <summary>
     /// Helper method to get lobby infos by request.
     /// </summary>
-    /// <param name="requestTemplate">'First part' of the Get Info request. e.g. {requestTemplate} = 'get-info')</param>
-    /// <param name="separator">Defines a separator must be applied between {requestTemplate} and {guid}</param>
     /// <param name="guids">Guids array to be pasted in '{get-info}{separator}{guid}' request</param>
     /// <returns></returns>
-    private async Task<List<LobbyInfo>> GetLobbyInfosByRequest(string requestTemplate, string separator, IEnumerable<Guid> guids)
+    private async Task<List<LobbyInfo>> GetLobbyInfosByRequest(IEnumerable<Guid> guids)
     {
         List<LobbyInfo> lobbyInfos = [];
 
         foreach (Guid guid in guids)
         {
-            var request = $"{requestTemplate}{separator}{guid}";
-            await Tools.WriteAsync(request, NetworkStream);
+            await Tools.WriteCommandAsync(new Command(CommandType.GetInfo, guid), NetworkStream);
                 
-            string response = await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(10 * 1000).Token);
+            string response = await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token);
 
             try
             {
                 LobbyInfo? lobbyInfo = JsonConvert.DeserializeObject<LobbyInfo>(response);
                 lobbyInfos.Add(lobbyInfo!);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 lobbyInfos.Add(null!);
             }

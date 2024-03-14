@@ -2,8 +2,9 @@
 using System.Net.Sockets;
 using System.Text;
 using Newtonsoft.Json;
+using SDT.Commands;
 
-namespace SDT;
+namespace SDT.Clients;
 
 /// <summary>
 /// Handler of SnaP clients.
@@ -14,13 +15,8 @@ public class ClientsHandler(string ipAddress, int port)
 
     private readonly Semaphore _clientsListSemaphore = new(1, 1);
     
-    public const string GetStatusCommand = "get-status";
-    public const string GetStatusCommandResponse = "ok";
-    
-    public const string GetGuidsCommand = "get-guids";
-    public const string GetInfoCommand = "get-info";
-    public const string CloseCommand = "close";
-    public const string UnknownCommandResponse = "Unknown command.";
+    public const string GetStatusSuccessResponse = "OK";
+    public const string UnknownCommandResponse = "Unknown Command";
 
     // Local list of connected SnaP Clients.
     private readonly List<Guid> _clients = [];
@@ -68,6 +64,8 @@ public class ClientsHandler(string ipAddress, int port)
         
         NetworkStream clientStream = tcpClient.GetStream();
 
+        // Check if version is same.
+        
         Console.WriteLine($"[CH/{guid}] Client connected!");
 
         _clientsListSemaphore.WaitOne();
@@ -85,50 +83,52 @@ public class ClientsHandler(string ipAddress, int port)
             // If cant write to stream the exception will be raised - client will be closed.
             try
             {
-                bytesRead = await clientStream.ReadAsync(message);
+                bytesRead = await clientStream.ReadAsync(message.AsMemory());
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
-                break;
+                HandleCloseCommand(guid, tcpClient);
+                return;
             }
             
             // If cant read from stream the exception will be raised - client will be closed.
             if (bytesRead <= 0)
             {
-                Console.WriteLine($"[CH/{guid}] Client closed connection.");
-                break;
+                HandleCloseCommand(guid, tcpClient);
+                return;
             }
             
-            string messageString = Encoding.ASCII.GetString(message, 0, bytesRead).ToLower();
-            messageString = messageString.Replace("\n", string.Empty);
-            messageString = messageString.Replace("\r", string.Empty);
+            // Convert bytes to a string and print it.
+            string clientMessage = Encoding.ASCII.GetString(message, 0, bytesRead);
+
+            Console.WriteLine($"[CH/{guid}] Received command: {clientMessage}");
+
+            Command? command = CommandParser.FromJson(clientMessage);
+            CommandType? commandType = command?.Type;
             
-            switch (messageString)
+            switch (commandType)
             {
-                case CloseCommand:
-                    HandleCloseCommand(guid);
+                case CommandType.Close:
+                    HandleCloseCommand(guid, tcpClient);
                     return;
-                case GetStatusCommand:
+                case CommandType.GetStatus:
                     await HandleGetStatusCommand(clientStream, guid);
                     break;
-                case GetGuidsCommand:
+                case CommandType.GetLobbyGuids:
                     await HandleGetGuidsCommand(clientStream, guid);
                     break;
+                case CommandType.GetInfo:
+                    await HandleGetInfoCommand(command?.Content, clientStream, guid);
+                    break;
+                case null:
+                    HandleUnknownCommand(clientMessage, clientStream, guid);
+                    break;
                 default:
-                    if (messageString.Contains(GetInfoCommand))
-                    {
-                        await HandleGetInfoCommand(messageString, clientStream, guid);
-                    }
-                    else
-                    {
-                        HandleUnknownCommand(messageString, clientStream, guid);
-                    }
+                    HandleUnsupportedCommand(commandType.Value, clientStream, guid);
                     break;
             }
         }
-
-        DropClient(guid, tcpClient);
     }
 
     public void Stop()
@@ -169,7 +169,7 @@ public class ClientsHandler(string ipAddress, int port)
     {
         try
         {
-            byte[] response = Encoding.ASCII.GetBytes(GetStatusCommandResponse);
+            byte[] response = Encoding.ASCII.GetBytes(GetStatusSuccessResponse);
             await clientStream.WriteAsync(response.ToArray());
         
             Console.WriteLine($"[CH/{chGuid}] Sent status.");
@@ -197,22 +197,11 @@ public class ClientsHandler(string ipAddress, int port)
         }
     }
 
-    private async Task HandleGetInfoCommand(string messageString, NetworkStream clientStream, Guid chGuid)
+    private async Task HandleGetInfoCommand(object? content, NetworkStream clientStream, Guid chGuid)
     {
-        int indexOfSeparator = messageString.IndexOf(' ') + 1;
-
-        if (indexOfSeparator == 0)
+        if (Guid.TryParse(content?.ToString(), out Guid guid) == false)
         {
-            var errorMessage = $"[CH/{chGuid}] Can't find index of separator in message.";
-            await SendErrorMessage(clientStream, errorMessage);
-            return;
-        }
-
-        string guidString = messageString[indexOfSeparator..];
-
-        if (Guid.TryParse(guidString, out Guid guid) == false)
-        {
-            var errorMessage = $"[CH/{chGuid}] Can't parse guid from message: {guidString}";
+            var errorMessage = $"[CH/{chGuid}] Can't parse guid from message: {content}";
             await SendErrorMessage(clientStream, errorMessage);
             return;
         }
@@ -241,18 +230,26 @@ public class ClientsHandler(string ipAddress, int port)
         }
     }
 
-    private void HandleCloseCommand(Guid chGuid)
+    private void HandleCloseCommand(Guid guid, TcpClient client)
     {
-        Console.WriteLine($"[CH/{chGuid}] Client closed connection.");
-        DropClient(chGuid, new TcpClient());
+        Console.WriteLine($"[CH/{guid}] Client closed connection.");
+        DropClient(guid, client);
     }
     
-    private async void HandleUnknownCommand(string messageString, NetworkStream clientStream, Guid chGuid)
+    private async void HandleUnknownCommand(string message, NetworkStream clientStream, Guid guid)
     {
-        byte[] length = "Unknown command."u8.ToArray();
-        await clientStream.WriteAsync(length);
+        byte[] length = Encoding.ASCII.GetBytes(UnknownCommandResponse);
+        await clientStream.WriteAsync(length.AsMemory());
         
-        Console.WriteLine($"[CH/{chGuid}] Unknown command: {messageString}");
+        Console.WriteLine($"[CH/{guid}] Unknown command: {message}");
+    }
+
+    private async void HandleUnsupportedCommand(CommandType type, NetworkStream clientStream, Guid guid)
+    {
+        byte[] length = Encoding.ASCII.GetBytes($"{type} is unsupported for ClientsHandler!");
+        await clientStream.WriteAsync(length.AsMemory());
+        
+        Console.WriteLine($"[CH/{guid}] {type} is unsupported command.");
     }
 
     #endregion

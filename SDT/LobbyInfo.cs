@@ -19,7 +19,7 @@
             LobbyName = lobbyName;
         }
         
-        public void Deconstruct(ref LobbyInfo lobbyInfo)
+        public void CopyValuesTo(ref LobbyInfo lobbyInfo)
         {
             lobbyInfo.PublicIpAddress = PublicIpAddress;
             lobbyInfo.Port = Port;
