@@ -56,11 +56,9 @@ public class ClientsHandler(string ipAddress, int port)
         Console.WriteLine("[CH] Server closing...");
     }
 
-    private async void Handle(object? obj)
+    private async void Handle(TcpClient tcpClient)
     {
         Guid guid = Guid.NewGuid();
-
-        TcpClient tcpClient = (TcpClient)obj!;
         
         NetworkStream clientStream = tcpClient.GetStream();
 
