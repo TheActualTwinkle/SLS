@@ -2,14 +2,14 @@
 using System.Net.Sockets;
 using System.Text;
 using Newtonsoft.Json;
-using SDT.Commands;
+using SDT.TcpIp.Commands;
 
-namespace SDT.Clients;
+namespace SDT.TcpIp;
 
 /// <summary>
 /// Handler of SnaP clients.
 /// </summary>
-public class ClientsHandler(string ipAddress, int port)
+public class ClientsHandler(IPAddress ipAddress, ushort port) : IClientsHandler
 {
     private const uint BufferSize = 512;
 
@@ -23,12 +23,12 @@ public class ClientsHandler(string ipAddress, int port)
     
     private TcpListener? _server;
     
-    public async void Start()
+    public async Task Run()
     {
         try
         {
             // TcpListener is used to wait for a connection from a client.
-            _server = new TcpListener(IPAddress.Parse(ipAddress), port);
+            _server = new TcpListener(ipAddress, port);
 
             // Start listening for client requests.
             _server.Start();
@@ -40,7 +40,9 @@ public class ClientsHandler(string ipAddress, int port)
                 // Blocks until a client has connected to the server.
                 TcpClient client = await _server.AcceptTcpClientAsync();
 
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 Task.Run(() => Handle(client));
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             }
         }
         catch (Exception e)
@@ -116,8 +118,8 @@ public class ClientsHandler(string ipAddress, int port)
                 case CommandType.GetLobbyGuids:
                     await HandleGetGuidsCommand(clientStream, guid);
                     break;
-                case CommandType.GetInfo:
-                    await HandleGetInfoCommand(command?.Content, clientStream, guid);
+                case CommandType.GetLobbyInfo:
+                    await HandleGetLobbyInfoCommand(command?.Content, clientStream, guid);
                     break;
                 case null:
                     HandleUnknownCommand(clientMessage, clientStream, guid);
@@ -195,7 +197,7 @@ public class ClientsHandler(string ipAddress, int port)
         }
     }
 
-    private async Task HandleGetInfoCommand(object? content, NetworkStream clientStream, Guid chGuid)
+    private async Task HandleGetLobbyInfoCommand(object? content, NetworkStream clientStream, Guid chGuid)
     {
         if (Guid.TryParse(content?.ToString(), out Guid guid) == false)
         {

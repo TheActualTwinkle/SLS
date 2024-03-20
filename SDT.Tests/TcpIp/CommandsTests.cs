@@ -1,6 +1,7 @@
-﻿using SDT.Commands;
+﻿using SDT.TcpIp;
+using SDT.TcpIp.Commands;
 
-namespace SDT.Tests;
+namespace SDT.Basic.Tests;
 
 [TestFixture]
 public class CommandsTests

@@ -1,24 +1,15 @@
 ﻿namespace SDT
 {
-    public class LobbyInfo
+    public class LobbyInfo(string publicIpAddress, ushort port, int maxSeats, int playersCount, string lobbyName)
     {
-        public string PublicIpAddress;
-        public ushort Port;
+        public string PublicIpAddress = publicIpAddress;
+        public ushort Port = port;
         
-        public int MaxSeats;
-        public int PlayersCount;
+        public int MaxSeats = maxSeats;
+        public int PlayersCount = playersCount;
 
-        public string LobbyName;
+        public string LobbyName = lobbyName;
 
-        public LobbyInfo(string publicIpAddress, ushort port, int maxSeats, int playersCount, string lobbyName)
-        {
-            PublicIpAddress = publicIpAddress;
-            Port = port;
-            MaxSeats = maxSeats;
-            PlayersCount = playersCount;
-            LobbyName = lobbyName;
-        }
-        
         public void CopyValuesTo(ref LobbyInfo lobbyInfo)
         {
             lobbyInfo.PublicIpAddress = PublicIpAddress;
@@ -26,15 +17,6 @@
             lobbyInfo.MaxSeats = MaxSeats;
             lobbyInfo.PlayersCount = PlayersCount;
             lobbyInfo.LobbyName = LobbyName;
-        }
-
-        public bool ValuesEquals(LobbyInfo lobbyInfo)
-        {
-            return PublicIpAddress == lobbyInfo.PublicIpAddress &&
-                   Port == lobbyInfo.Port &&
-                   MaxSeats == lobbyInfo.MaxSeats &&
-                   PlayersCount == lobbyInfo.PlayersCount &&
-                   LobbyName == lobbyInfo.LobbyName;
         }
     }
 }

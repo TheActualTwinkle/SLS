@@ -1,8 +1,9 @@
-﻿using System.Net.Sockets;
-using SDT.Commands;
-using SDT.Servers;
+﻿using System.Net;
+using System.Net.Sockets;
+using SDT.TcpIp;
+using SDT.TcpIp.Commands;
 
-namespace SDT.Tests;
+namespace SDT.Basic.Tests;
 
 public class ServerTests
 {
@@ -16,10 +17,10 @@ public class ServerTests
     [SetUp]
     public async Task Setup()
     {
-        _serversHandler = new ServersHandler("127.0.0.1", Port);
-        _serversHandler.Start();        
+        _serversHandler = new ServersHandler(IPAddress.Parse("127.0.0.1"), Port);
+        _serversHandler.Run();        
         
-        _tcpClient = await Tools.Connect(Port);
+        _tcpClient = await Tools.Connect(IPAddress.Parse("127.0.0.1"), Port);
     }
     
     [Test]
@@ -82,7 +83,7 @@ public class ServerTests
 
         LobbyInfo lobbyInfo = Program.LobbyInfos.Values.First();
 
-        Assert.That(lobbyInfo.ValuesEquals(randomLobbyInfo), Is.True);
+        Assert.That(Tools.LobbyInfoValuesEquals(lobbyInfo, randomLobbyInfo), Is.True);
     }
 
     [Test]
@@ -100,14 +101,14 @@ public class ServerTests
 
         LobbyInfo lobbyInfo = Program.LobbyInfos.Values.First();
 
-        if (lobbyInfo.ValuesEquals(randomLobbyInfo1) == false)
+        if (Tools.LobbyInfoValuesEquals(lobbyInfo, randomLobbyInfo1) == false)
         {
             Assert.Fail();
         }
 
         LobbyInfo randomLobbyInfo2 = await PostRandomLobbyInfo();
 
-        Assert.That(lobbyInfo.ValuesEquals(randomLobbyInfo2), Is.True);
+        Assert.That(Tools.LobbyInfoValuesEquals(lobbyInfo, randomLobbyInfo2), Is.True);
     }
     
     [Test]

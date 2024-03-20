@@ -21,3 +21,10 @@ C:\CSharp\SDT\SDT\bin\Release\net8.0\System.Composition.Convention.dll
 C:\CSharp\SDT\SDT\bin\Release\net8.0\System.Composition.Hosting.dll
 C:\CSharp\SDT\SDT\bin\Release\net8.0\System.Composition.Runtime.dll
 C:\CSharp\SDT\SDT\bin\Release\net8.0\System.Composition.TypedParts.dll
+C:\CSharp\SDT\SDT\bin\Release\net8.0\Google.Protobuf.dll
+C:\CSharp\SDT\SDT\bin\Release\net8.0\Grpc.AspNetCore.Server.dll
+C:\CSharp\SDT\SDT\bin\Release\net8.0\Grpc.AspNetCore.Server.ClientFactory.dll
+C:\CSharp\SDT\SDT\bin\Release\net8.0\Grpc.Core.Api.dll
+C:\CSharp\SDT\SDT\bin\Release\net8.0\Grpc.Net.Client.dll
+C:\CSharp\SDT\SDT\bin\Release\net8.0\Grpc.Net.ClientFactory.dll
+C:\CSharp\SDT\SDT\bin\Release\net8.0\Grpc.Net.Common.dll

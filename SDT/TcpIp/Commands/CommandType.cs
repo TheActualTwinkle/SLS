@@ -1,4 +1,4 @@
-﻿namespace SDT.Commands;
+﻿namespace SDT.TcpIp.Commands;
 
 public enum CommandType
 {
@@ -6,7 +6,7 @@ public enum CommandType
     
     GetStatus,
     GetLobbyGuids,
-    GetInfo,
+    GetLobbyInfo,
     
     Close,
 }

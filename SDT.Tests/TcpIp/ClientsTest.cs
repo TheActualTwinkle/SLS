@@ -1,9 +1,10 @@
+using System.Net;
 using System.Net.Sockets;
 using Newtonsoft.Json;
-using SDT.Clients;
-using SDT.Commands;
+using SDT.TcpIp;
+using SDT.TcpIp.Commands;
 
-namespace SDT.Tests;
+namespace SDT.Basic.Tests;
 
 [TestFixture]
 public class ClientTests
@@ -18,10 +19,10 @@ public class ClientTests
     [SetUp]
     public async Task Setup()
     {
-        _clientsHandler = new ClientsHandler("127.0.0.1", Port);
-        _clientsHandler.Start();
+        _clientsHandler = new ClientsHandler(IPAddress.Parse("127.0.0.1"), Port);
+        _clientsHandler.Run();
         
-        _tcpClient = await Tools.Connect(Port);
+        _tcpClient = await Tools.Connect(IPAddress.Parse("127.0.0.1"), Port);
     }
 
     [Test]
@@ -104,7 +105,7 @@ public class ClientTests
         
         for (var i = 0; i < guids.Count; i++)
         {
-            if (lobbyInfosByRequest[i].ValuesEquals(Program.LobbyInfos[guids[i]]) == false)
+            if (Tools.LobbyInfoValuesEquals(lobbyInfosByRequest[i], Program.LobbyInfos[guids[i]]) == false)
             {
                 Assert.Fail();
             }
@@ -114,7 +115,7 @@ public class ClientTests
     [Test]
     public async Task GetLobbyInfo_RequestWithCorruptedGuids_ArrayOfNull()
     {
-        await Tools.WriteCommandAsync(new Command(CommandType.GetInfo, "bad-guid"), NetworkStream);
+        await Tools.WriteCommandAsync(new Command(CommandType.GetLobbyInfo, "bad-guid"), NetworkStream);
         string response = await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token);
 
         try
@@ -122,7 +123,7 @@ public class ClientTests
             JsonConvert.DeserializeObject<LobbyInfo?>(response);
             Assert.Fail();
         }
-        catch (JsonSerializationException e)
+        catch (JsonSerializationException)
         {
             Assert.Pass();
         }
@@ -172,7 +173,7 @@ public class ClientTests
 
         foreach (Guid guid in guids)
         {
-            await Tools.WriteCommandAsync(new Command(CommandType.GetInfo, guid), NetworkStream);
+            await Tools.WriteCommandAsync(new Command(CommandType.GetLobbyInfo, guid), NetworkStream);
                 
             string response = await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token);
 

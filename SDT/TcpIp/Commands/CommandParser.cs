@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace SDT.Commands;
+namespace SDT.TcpIp.Commands;
 
 public static class CommandParser
 {

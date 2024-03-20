@@ -2,14 +2,14 @@
 using System.Net.Sockets;
 using System.Text;
 using Newtonsoft.Json;
-using SDT.Commands;
+using SDT.TcpIp.Commands;
 
-namespace SDT.Servers;
+namespace SDT.TcpIp;
 
 /// <summary>
 /// Handler of SnaP servers.
 /// </summary>
-public class ServersHandler(string address, int port)
+public class ServersHandler(IPAddress ipAddress, ushort port) : IServersHandler
 {
     public const string GetStatusSuccessResponse = "OK";
     public const string UnknownCommandResponse = "Unknown Command";
@@ -23,26 +23,26 @@ public class ServersHandler(string address, int port)
     
     private TcpListener? _server;
 
-    public async void Start()
+    public async Task Run()
     { 
         try
         {
-            IPAddress ipAddress = IPAddress.Parse(address);
-
             // TcpListener is used to wait for a connection from a client.
             _server = new TcpListener(ipAddress, port);
 
             // Start listening for client requests.
             _server.Start();
 
-            Console.WriteLine($"[SH] Server for SnaP SERVERS started at {address}:{port}. Waiting for connections...");
+            Console.WriteLine($"[SH] Server for SnaP SERVERS started at {ipAddress}:{port}. Waiting for connections...");
 
             while (true)
             {
                 // Blocks until a client has connected to the server.
                 TcpClient client = await _server.AcceptTcpClientAsync();
 
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 Task.Run(() => Handle(client));
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             }
         }
         catch (Exception e)
