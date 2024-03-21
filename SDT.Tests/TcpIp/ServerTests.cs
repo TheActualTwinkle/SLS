@@ -3,7 +3,7 @@ using System.Net.Sockets;
 using SDT.TcpIp;
 using SDT.TcpIp.Commands;
 
-namespace SDT.Basic.Tests;
+namespace SDT.Tests.TcpIp;
 
 public class ServerTests
 {
@@ -18,7 +18,9 @@ public class ServerTests
     public async Task Setup()
     {
         _serversHandler = new ServersHandler(IPAddress.Parse("127.0.0.1"), Port);
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         _serversHandler.Run();        
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         
         _tcpClient = await Tools.Connect(IPAddress.Parse("127.0.0.1"), Port);
     }

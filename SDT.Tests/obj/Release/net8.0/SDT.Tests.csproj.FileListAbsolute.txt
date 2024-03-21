@@ -104,8 +104,12 @@ C:\CSharp\SDT\SDT.Tests\obj\Release\net8.0\refint\SDT.Tests.dll
 C:\CSharp\SDT\SDT.Tests\obj\Release\net8.0\SDT.Tests.pdb
 C:\CSharp\SDT\SDT.Tests\obj\Release\net8.0\SDT.Tests.genruntimeconfig.cache
 C:\CSharp\SDT\SDT.Tests\obj\Release\net8.0\ref\SDT.Tests.dll
-C:\CSharp\SDT\SDT.Tests\bin\Release\net8.0\System.Composition.AttributedModel.dll
-C:\CSharp\SDT\SDT.Tests\bin\Release\net8.0\System.Composition.Convention.dll
-C:\CSharp\SDT\SDT.Tests\bin\Release\net8.0\System.Composition.Hosting.dll
-C:\CSharp\SDT\SDT.Tests\bin\Release\net8.0\System.Composition.Runtime.dll
-C:\CSharp\SDT\SDT.Tests\bin\Release\net8.0\System.Composition.TypedParts.dll
+C:\CSharp\SDT\SDT.Tests\bin\Release\net8.0\Google.Protobuf.dll
+C:\CSharp\SDT\SDT.Tests\bin\Release\net8.0\Grpc.AspNetCore.Server.dll
+C:\CSharp\SDT\SDT.Tests\bin\Release\net8.0\Grpc.AspNetCore.Server.ClientFactory.dll
+C:\CSharp\SDT\SDT.Tests\bin\Release\net8.0\Grpc.Core.Api.dll
+C:\CSharp\SDT\SDT.Tests\bin\Release\net8.0\Grpc.Net.Client.dll
+C:\CSharp\SDT\SDT.Tests\bin\Release\net8.0\Grpc.Net.ClientFactory.dll
+C:\CSharp\SDT\SDT.Tests\bin\Release\net8.0\Grpc.Net.Common.dll
+C:\CSharp\SDT\SDT.Tests\bin\Release\net8.0\protobuf-net.dll
+C:\CSharp\SDT\SDT.Tests\bin\Release\net8.0\protobuf-net.Core.dll

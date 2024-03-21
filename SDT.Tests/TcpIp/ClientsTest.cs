@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 using SDT.TcpIp;
 using SDT.TcpIp.Commands;
 
-namespace SDT.Basic.Tests;
+namespace SDT.Tests.TcpIp;
 
 [TestFixture]
 public class ClientTests
@@ -13,15 +13,17 @@ public class ClientTests
 
     private NetworkStream NetworkStream => _tcpClient.GetStream();
     private TcpClient _tcpClient;
-    
+
     private const ushort Port = 47921;
 
     [SetUp]
     public async Task Setup()
     {
         _clientsHandler = new ClientsHandler(IPAddress.Parse("127.0.0.1"), Port);
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         _clientsHandler.Run();
-        
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+
         _tcpClient = await Tools.Connect(IPAddress.Parse("127.0.0.1"), Port);
     }
 
@@ -30,7 +32,7 @@ public class ClientTests
     {
         Assert.That(_tcpClient.Connected == true && _clientsHandler?.HasClients() == true, Is.True);
     }
-    
+
     // Handle Close command.
     [Test]
     public async Task Disconnect()
@@ -39,44 +41,47 @@ public class ClientTests
 
         Assert.That(_clientsHandler?.HasClients(), Is.False);
     }
-    
+
     [Test]
     public async Task DropConnection()
     {
         await Tools.Disconnect(_tcpClient);
-        
+
         Assert.That(_clientsHandler?.HasClients(), Is.False);
     }
-    
+
     [Test]
     public async Task GetStatus()
     {
         await Tools.WriteCommandAsync(new Command(CommandType.GetStatus), NetworkStream);
-        
-        string response = await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token);
-        
+
+        string response =
+            await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token);
+
         Assert.That(response, Is.EqualTo(ClientsHandler.GetStatusSuccessResponse));
     }
-    
+
     [Test]
     public async Task UnknownCommand()
     {
         await Tools.WriteCommandAsync(new Command(), NetworkStream);
-        
-        string response = await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token);
-        
+
+        string response =
+            await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token);
+
         Assert.That(response, Is.EqualTo(ClientsHandler.UnknownCommandResponse));
     }
-    
+
     [Test]
     public async Task GetLobbyGuids()
     {
         List<Guid> guids = Tools.RegisterRandomLobbyInfo(5);
 
         await Tools.WriteCommandAsync(new Command(CommandType.GetLobbyGuids), NetworkStream);
-        
+
         // Get lobby guids.
-        string lobbyGuidsJson = await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token);
+        string lobbyGuidsJson =
+            await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token);
         List<Guid>? lobbyGuids = JsonConvert.DeserializeObject<List<Guid>>(lobbyGuidsJson);
 
         if (lobbyGuids == null)
@@ -90,11 +95,11 @@ public class ClientTests
             {
                 continue;
             }
-            
+
             Assert.Fail();
         }
     }
-    
+
     [Test]
     public async Task GetLobbyInfo_CorrectRequest_ArrayOfCorrectLobbyInfo()
     {
@@ -102,7 +107,7 @@ public class ClientTests
         List<Guid> guids = Tools.RegisterRandomLobbyInfo(randomLobbiesCount);
 
         List<LobbyInfo> lobbyInfosByRequest = await GetLobbyInfosByRequest(guids);
-        
+
         for (var i = 0; i < guids.Count; i++)
         {
             if (Tools.LobbyInfoValuesEquals(lobbyInfosByRequest[i], Program.LobbyInfos[guids[i]]) == false)
@@ -116,7 +121,8 @@ public class ClientTests
     public async Task GetLobbyInfo_RequestWithCorruptedGuids_ArrayOfNull()
     {
         await Tools.WriteCommandAsync(new Command(CommandType.GetLobbyInfo, "bad-guid"), NetworkStream);
-        string response = await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token);
+        string response =
+            await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token);
 
         try
         {
@@ -137,18 +143,18 @@ public class ClientTests
 
         // Generate randomLobbiesCount fake guid.
         guids[0] = Guid.NewGuid();
-        
+
         List<LobbyInfo> lobbyInfosByRequest = await GetLobbyInfosByRequest(guids);
-        
+
         // All elements should be null.
         Assert.That(lobbyInfosByRequest[0] == null! && lobbyInfosByRequest[1..] != null!, Is.True);
     }
-    
+
     [Test]
     public async Task UnsupportedCommand()
     {
         await Tools.WriteCommandAsync(new Command(CommandType.PostLobbyInfo), NetworkStream);
-        
+
         Assert.That(_clientsHandler!.HasClients() == true && Program.LobbyInfos.IsEmpty, Is.True);
     }
 
@@ -174,8 +180,9 @@ public class ClientTests
         foreach (Guid guid in guids)
         {
             await Tools.WriteCommandAsync(new Command(CommandType.GetLobbyInfo, guid), NetworkStream);
-                
-            string response = await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token);
+
+            string response = await Tools.ReadAsync(NetworkStream,
+                new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token);
 
             try
             {

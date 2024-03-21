@@ -4,7 +4,7 @@ using System.Text;
 using SDT.TcpIp;
 using SDT.TcpIp.Commands;
 
-namespace SDT.Basic.Tests;
+namespace SDT.Tests.TcpIp;
 
 public static class Tools
 {
