@@ -32,7 +32,8 @@
       "Grpc.AspNetCore/2.61.0": {
         "dependencies": {
           "Google.Protobuf": "3.24.0",
-          "Grpc.AspNetCore.Server.ClientFactory": "2.61.0"
+          "Grpc.AspNetCore.Server.ClientFactory": "2.61.0",
+          "Grpc.Tools": "2.61.0"
         }
       },
       "Grpc.AspNetCore.Server/2.61.0": {
@@ -101,6 +102,7 @@
           }
         }
       },
+      "Grpc.Tools/2.61.0": {},
       "Microsoft.CodeCoverage/17.8.0": {
         "runtime": {
           "lib/netcoreapp3.1/Microsoft.VisualStudio.CodeCoverage.Shim.dll": {
@@ -465,7 +467,6 @@
       "System.Runtime.CompilerServices.Unsafe/6.0.0": {},
       "SDT/1.0.0": {
         "dependencies": {
-          "Google.Protobuf": "3.24.0",
           "Grpc.AspNetCore": "2.61.0",
           "Newtonsoft.Json": "13.0.3"
         },
@@ -543,6 +544,13 @@
       "sha512": "sha512-7htYm01A2GCNFq6iamv1NjPycs0nslsYrDD01VAy71k8aSDISBklGJwH7iXZ+ScHdhz+qE0WVvZYVTFsfMPZzQ==",
       "path": "grpc.net.common/2.61.0",
       "hashPath": "grpc.net.common.2.61.0.nupkg.sha512"
+    },
+    "Grpc.Tools/2.61.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-NwrF+hn8QC5gE7LE3szHEzFWQKisV5tmncitPtWurO58XDINLYzqoDeNczxX3OT/zuSDqcwzisw0Qo4KSzILxQ==",
+      "path": "grpc.tools/2.61.0",
+      "hashPath": "grpc.tools.2.61.0.nupkg.sha512"
     },
     "Microsoft.CodeCoverage/17.8.0": {
       "type": "package",

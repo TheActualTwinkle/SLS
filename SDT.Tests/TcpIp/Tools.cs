@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using SDT.TcpIp;
 using SDT.TcpIp.Commands;
 
 namespace SDT.Tests.TcpIp;

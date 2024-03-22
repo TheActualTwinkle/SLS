@@ -1,5 +1,4 @@
-﻿using SDT.TcpIp;
-using SDT.TcpIp.Commands;
+﻿using SDT.TcpIp.Commands;
 
 namespace SDT.Tests.TcpIp;
 
