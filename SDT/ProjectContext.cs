@@ -18,8 +18,8 @@ public static class ProjectContext
         _localIpAddress = await GetLocalIPsAsync();
         
         // DI.
-        ServersHandler = new TcpIp.ServersHandler(_localIpAddress!, ServerPort);
-        ClientsHandler = new TcpIp.ClientsHandler(_localIpAddress!, ClientPort);
+        ServersHandler = new Grpc.ServersHandlerService($"https://localhost:{ServerPort}");
+        ClientsHandler = new Grpc.ClientsHandlerService($"https://localhost:{ClientPort}");
     }
     
     private static async Task<IPAddress?> GetLocalIPsAsync()

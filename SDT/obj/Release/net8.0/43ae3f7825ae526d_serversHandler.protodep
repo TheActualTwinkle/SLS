@@ -1,0 +1,2 @@
+obj\Release\net8.0\Grpc\Protos/ServersHandler.cs \
+obj\Release\net8.0\Grpc\Protos/ServersHandlerGrpc.cs: Grpc/Protos/serversHandler.proto

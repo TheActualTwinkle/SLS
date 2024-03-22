@@ -1,10 +1,18 @@
 syntax = "proto3";
 
+
 option csharp_namespace = "SDT.Grpc";
 
 service ClientsHandler {
   rpc GetGuids (GetGuidsRequest) returns (GetGuidsResponse);
   rpc GetLobbyInfo (GetLobbyInfoRequest) returns (GetLobbyInfoResponse);
+}
+
+message GetGuidsRequest {
+}
+
+message GetGuidsResponse {
+  repeated string guids = 1;
 }
 
 message GetLobbyInfoRequest {
@@ -19,11 +27,4 @@ message GetLobbyInfoResponse {
   int32 players_count = 4;
 
   string lobby_name = 5;
-}
-
-message GetGuidsRequest {
-}
-
-message GetGuidsResponse {
-  repeated string guids = 1;
 }

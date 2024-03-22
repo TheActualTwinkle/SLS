@@ -10,17 +10,12 @@
 
     <ItemGroup>
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-      <PackageReference Include="System.Composition" Version="8.0.0" />
     </ItemGroup>
 
     <ItemGroup>
         <Protobuf Include="Grpc\Protos\clientsHandler.proto" GrpcServices="Server" />
+        <Protobuf Include="Grpc\Protos\serversHandler.proto" GrpcServices="Server" />
         <PackageReference Include="Grpc.AspNetCore" Version="2.61.0" />
-        <PackageReference Include="Google.Protobuf" Version="3.24.0" />
-        <PackageReference Include="Grpc.Tools" Version="2.61.0">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-            <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
     </ItemGroup>
 
 </Project>

@@ -16,11 +16,6 @@ C:\CSharp\SDT\SDT\obj\Release\net8.0\refint\SDT.dll
 C:\CSharp\SDT\SDT\obj\Release\net8.0\SDT.pdb
 C:\CSharp\SDT\SDT\obj\Release\net8.0\SDT.genruntimeconfig.cache
 C:\CSharp\SDT\SDT\obj\Release\net8.0\ref\SDT.dll
-C:\CSharp\SDT\SDT\bin\Release\net8.0\System.Composition.AttributedModel.dll
-C:\CSharp\SDT\SDT\bin\Release\net8.0\System.Composition.Convention.dll
-C:\CSharp\SDT\SDT\bin\Release\net8.0\System.Composition.Hosting.dll
-C:\CSharp\SDT\SDT\bin\Release\net8.0\System.Composition.Runtime.dll
-C:\CSharp\SDT\SDT\bin\Release\net8.0\System.Composition.TypedParts.dll
 C:\CSharp\SDT\SDT\bin\Release\net8.0\Google.Protobuf.dll
 C:\CSharp\SDT\SDT\bin\Release\net8.0\Grpc.AspNetCore.Server.dll
 C:\CSharp\SDT\SDT\bin\Release\net8.0\Grpc.AspNetCore.Server.ClientFactory.dll

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "2/Yhv0psboJNyMoA6Lihcb0kd8m9EsAsZVahsGibxYilw5IQdyH9S+E3oioNreWb1JZcwew9tv3+3MIZWTWgxQ==",
+  "dgSpecHash": "2nUN1XwPgBt4AaDI1KsjGjzmYLxfhO2AbeI0jk08y6oHIQOMPUMn09xODmnw7nJkABI13QklUIicZVoH1/oROA==",
   "success": true,
   "projectFilePath": "C:\\CSharp\\SDT\\SDT.Tests\\SDT.Tests.csproj",
   "expectedPackageFiles": [
@@ -32,9 +32,6 @@
     "C:\\Users\\super\\.nuget\\packages\\nunit\\3.14.0\\nunit.3.14.0.nupkg.sha512",
     "C:\\Users\\super\\.nuget\\packages\\nunit.analyzers\\3.9.0\\nunit.analyzers.3.9.0.nupkg.sha512",
     "C:\\Users\\super\\.nuget\\packages\\nunit3testadapter\\4.5.0\\nunit3testadapter.4.5.0.nupkg.sha512",
-    "C:\\Users\\super\\.nuget\\packages\\protobuf-net\\3.2.30\\protobuf-net.3.2.30.nupkg.sha512",
-    "C:\\Users\\super\\.nuget\\packages\\protobuf-net.core\\3.2.30\\protobuf-net.core.3.2.30.nupkg.sha512",
-    "C:\\Users\\super\\.nuget\\packages\\system.collections.immutable\\7.0.0\\system.collections.immutable.7.0.0.nupkg.sha512",
     "C:\\Users\\super\\.nuget\\packages\\system.diagnostics.diagnosticsource\\6.0.0\\system.diagnostics.diagnosticsource.6.0.0.nupkg.sha512",
     "C:\\Users\\super\\.nuget\\packages\\system.reflection.metadata\\1.6.0\\system.reflection.metadata.1.6.0.nupkg.sha512",
     "C:\\Users\\super\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\6.0.0\\system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512"

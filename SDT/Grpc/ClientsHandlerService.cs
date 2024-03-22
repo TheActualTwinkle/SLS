@@ -1,7 +1,6 @@
 ﻿using Grpc.Core;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using SDT.TcpIp;
 
 namespace SDT.Grpc;
 
@@ -21,7 +20,7 @@ public class ClientsHandlerService(string? url = null) : ClientsHandler.ClientsH
         app.MapGrpcService<ClientsHandlerService>();
         app.MapGet("/",
             () =>
-                "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
+                "Communication with gRPC endpoints must be made through a gRPC client.");
         
         await app.RunAsync(url);
     }
@@ -30,13 +29,8 @@ public class ClientsHandlerService(string? url = null) : ClientsHandler.ClientsH
     {
         GetGuidsResponse getGuidsResponse = new()
         {
-            Guids = { Program.LobbyInfos.Keys.Select(guid => guid.ToString()) }
+            Guids = { Program.LobbyInfos.Keys.Select(x => x.ToString()) }
         };
-
-        foreach (string guid in getGuidsResponse.Guids)
-        {
-            Console.WriteLine(guid);
-        }
         
         return Task.FromResult(getGuidsResponse);
     }

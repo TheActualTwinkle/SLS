@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "aGlv9Nxk1rR1KJ16S4WTJdnF2SlyHK9AZikD6SaYtiDTUae63n4RPftDavmiBtu8jBdWRRNMBEFXbTwhDOHUug==",
+  "dgSpecHash": "M8EhWhy1pIZH5xYOyrYU9trfPAHlaDIzUkWk1cY3jvLucofBjUCeGVT+ckajMXHWZj9DMff5b17XwU/Ox8FlQQ==",
   "success": true,
   "projectFilePath": "C:\\CSharp\\SDT\\SDT\\SDT.csproj",
   "expectedPackageFiles": [
@@ -21,12 +21,6 @@
     "C:\\Users\\super\\.nuget\\packages\\microsoft.extensions.options\\6.0.0\\microsoft.extensions.options.6.0.0.nupkg.sha512",
     "C:\\Users\\super\\.nuget\\packages\\microsoft.extensions.primitives\\6.0.0\\microsoft.extensions.primitives.6.0.0.nupkg.sha512",
     "C:\\Users\\super\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
-    "C:\\Users\\super\\.nuget\\packages\\system.composition\\8.0.0\\system.composition.8.0.0.nupkg.sha512",
-    "C:\\Users\\super\\.nuget\\packages\\system.composition.attributedmodel\\8.0.0\\system.composition.attributedmodel.8.0.0.nupkg.sha512",
-    "C:\\Users\\super\\.nuget\\packages\\system.composition.convention\\8.0.0\\system.composition.convention.8.0.0.nupkg.sha512",
-    "C:\\Users\\super\\.nuget\\packages\\system.composition.hosting\\8.0.0\\system.composition.hosting.8.0.0.nupkg.sha512",
-    "C:\\Users\\super\\.nuget\\packages\\system.composition.runtime\\8.0.0\\system.composition.runtime.8.0.0.nupkg.sha512",
-    "C:\\Users\\super\\.nuget\\packages\\system.composition.typedparts\\8.0.0\\system.composition.typedparts.8.0.0.nupkg.sha512",
     "C:\\Users\\super\\.nuget\\packages\\system.diagnostics.diagnosticsource\\6.0.0\\system.diagnostics.diagnosticsource.6.0.0.nupkg.sha512",
     "C:\\Users\\super\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\6.0.0\\system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512"
   ],
