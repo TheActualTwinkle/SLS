@@ -21,10 +21,10 @@ jobs:
       run: dotnet restore SnaPDataTransfer.sln
   
     - name: Setup HTTPS certificate
-      run: sudo apt-get install -y libnss3-tools
-           dotnet dev-certs https
-           sudo -E dotnet dev-certs https -ep /usr/local/share/ca-certificates/aspnet/https.crt --format PEM
-           certutil -d sql:$HOME/.pki/nssdb -A -t "P,," -n localhost -i /usr/local/share/ca-certificates/aspnet/https.crt
+      run: sudo apt-get install -y libnss3-tools &&
+           dotnet dev-certs https &&
+           sudo -E dotnet dev-certs https -ep /usr/local/share/ca-certificates/aspnet/https.crt --format PEM &&
+           certutil -d sql:$HOME/.pki/nssdb -A -t "P,," -n localhost -i /usr/local/share/ca-certificates/aspnet/https.crt &&
            certutil -d sql:$HOME/.pki/nssdb -A -t "C,," -n localhost -i /usr/local/share/ca-certificates/aspnet/https.crt
            
     - name: Build
