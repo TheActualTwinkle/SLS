@@ -6,7 +6,7 @@ SDT - [SnaP](https://github.com/TheActualTwinkle/SnaP) Data Transfer
 * Store them 
 * Send this data to **SnaP** Clients
 
-To run using *gRPC* use `-g` agrument
+To run with *gRPC* use  `-g` agrument
 ```bash
 dotnet run --project SDT -g
 ```

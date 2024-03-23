@@ -13,8 +13,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Protobuf Include="Grpc\Protos\clientsHandler.proto" GrpcServices="Server" />
-        <Protobuf Include="Grpc\Protos\serversHandler.proto" GrpcServices="Server" />
+        <Protobuf Include="Grpc\Protos\clientsHandler.proto" GrpcServices="Both" />
+        <Protobuf Include="Grpc\Protos\serversHandler.proto" GrpcServices="Both" />
         <PackageReference Include="Grpc.AspNetCore" Version="2.61.0" />
     </ItemGroup>
 

@@ -81,14 +81,7 @@ public class ServersTests
     private async Task<LobbyInfo> PostRandomLobbyInfo()
     {
         LobbyInfo expectedLobbyInfo = Tools.GetRandomLobbyInfo();
-        PostLobbyInfoRequest request = new()
-        {
-            PublicIpAddress = expectedLobbyInfo.PublicIpAddress,
-            Port = expectedLobbyInfo.Port,
-            MaxSeats = expectedLobbyInfo.MaxSeats,
-            PlayersCount = expectedLobbyInfo.PlayersCount,
-            LobbyName = expectedLobbyInfo.LobbyName
-        };
+        PostLobbyInfoRequest? request = LobbyInfoParser.ToRequest(expectedLobbyInfo);
 
         await _client.PostLobbyInfoAsync(request);
         return expectedLobbyInfo;

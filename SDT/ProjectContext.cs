@@ -39,13 +39,13 @@ public enum HandlerType : byte
 public static class HandlersFactory
 {
     private static readonly IPAddress? LocalIp;
-    
+
     static HandlersFactory()
     {
-        LocalIp = Dns.GetHostEntry(Dns.GetHostName()).AddressList.FirstOrDefault(f => f.AddressFamily == AddressFamily.InterNetwork);
+        LocalIp = Dns.GetHostEntry(Dns.GetHostName()).AddressList
+            .FirstOrDefault(f => f.AddressFamily == AddressFamily.InterNetwork);
     }
-    
-    
+
     public static IServersHandler GetServers(HandlerType handlerType)
     {
         return handlerType switch
@@ -61,7 +61,7 @@ public static class HandlersFactory
         return handlerType switch
         {
             HandlerType.TcpIp => new TcpIp.ClientsHandler(LocalIp!, ProjectContext.ClientsPort),
-            HandlerType.Grpc => new Grpc.ClientsHandlerService($"https://{LocalIp}:{ProjectContext.ClientsHandler}"),
+            HandlerType.Grpc => new Grpc.ClientsHandlerService($"https://{LocalIp}:{ProjectContext.ClientsPort}"),
             _ => throw new ArgumentOutOfRangeException(nameof(handlerType), handlerType, null)
         };
     }

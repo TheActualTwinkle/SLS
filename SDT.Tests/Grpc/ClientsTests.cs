@@ -45,11 +45,16 @@ public class ClientsTests
         
         GetLobbyInfoResponse response = await _client.GetLobbyInfoAsync(new GetLobbyInfoRequest { Guid = guid.ToString() });
 
-        LobbyInfo actualLobbyInfo = new(response.PublicIpAddress, (ushort)response.Port, response.MaxSeats, response.PlayersCount, response.LobbyName);
+        LobbyInfo? actualLobbyInfo = LobbyInfoParser.Parse(response);
 
+        if (actualLobbyInfo == null)
+        {
+            Assert.Fail("Can`t parse GetLobbyInfoResponse to LobbyInfo.");
+        }
+        
         LobbyInfo expectedLobbyInfo = Program.LobbyInfos[guid];
 
-        Assert.That(Tools.LobbyInfoValuesEquals(expectedLobbyInfo, actualLobbyInfo), Is.True);
+        Assert.That(Tools.LobbyInfoValuesEquals(expectedLobbyInfo, actualLobbyInfo!), Is.True);
     }
     
     [TearDown]

@@ -10,8 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Protobuf Include="..\SDT\Grpc\Protos\serversHandler.proto" GrpcServices="Client" />
-    <Protobuf Include="..\SDT\Grpc\Protos\clientsHandler.proto" GrpcServices="Client" />
     <PackageReference Include="Google.Protobuf" Version="3.24.0" />
     <PackageReference Include="Grpc.Net.Client" Version="2.61.0" />
     <PackageReference Include="Grpc.Tools" Version="2.61.0">
@@ -34,6 +32,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SDT\SDT.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="..\SDT\obj\Release\net8.0\Grpc\Protos\" />
   </ItemGroup>
 
 </Project>
