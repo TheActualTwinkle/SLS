@@ -8,18 +8,15 @@ public static class Program
     
     public static async Task Main()
     {
-        await ProjectContext.InitializeAsync();
+        ProjectContext.InitializeAsync();
         
         // Start handlers.
-        Task? serverHandler = ProjectContext.ServersHandler?.Run();
-        Task? clientsHandler = ProjectContext.ClientsHandler?.Run();
-        
-        if (serverHandler is null || clientsHandler is null)
-        {
-            Console.WriteLine("Error: Handlers are not initialized.");
-            return;
-        }
+        Task? serverHandler = Task.Run(() => ProjectContext.ServersHandler!.Run());
+        Task? clientsHandler = Task.Run(() => ProjectContext.ClientsHandler!.Run());
 
         await Task.WhenAll(serverHandler, clientsHandler);
+
+        await ProjectContext.ServersHandler!.Stop();
+        await ProjectContext.ClientsHandler!.Stop();
     }
 }

@@ -5,27 +5,65 @@ namespace SDT;
 
 public static class ProjectContext
 {
-    public static IServersHandler? ServersHandler { get; private set; }
+    public static IServersHandler? ServersHandler { get; private set; } 
     public static IClientsHandler? ClientsHandler { get; private set; }
 
-    private const ushort ServerPort = 47920;
-    private const ushort ClientPort = 47921;
+    public const ushort ServersPort = 47920;
+    public const ushort ClientsPort = 47921;
 
-    private static IPAddress? _localIpAddress;
-
-    public static async Task InitializeAsync()
+    private static HandlerType _handlerType = HandlerType.TcpIp;
+    
+    public static void InitializeAsync()
     {
-        _localIpAddress = await GetLocalIPsAsync();
+        string[] args = Environment.GetCommandLineArgs();
+
+        if (args.Length > 1 && args[1].Contains("-g"))
+        {
+            _handlerType = HandlerType.Grpc;
+        }
         
         // DI.
-        ServersHandler = new Grpc.ServersHandlerService($"https://localhost:{ServerPort}");
-        ClientsHandler = new Grpc.ClientsHandlerService($"https://localhost:{ClientPort}");
-    }
-    
-    private static async Task<IPAddress?> GetLocalIPsAsync()
-    {
-        return (await Dns.GetHostEntryAsync(Dns.GetHostName()))
-            .AddressList.FirstOrDefault(
-                f => f.AddressFamily == AddressFamily.InterNetwork);
+        ServersHandler = HandlersFactory.GetServers(_handlerType);
+        ClientsHandler = HandlersFactory.GetClients(_handlerType);
+
+        Console.WriteLine("[Context] Handler type: " + _handlerType);
     }
 }
+
+public enum HandlerType : byte
+{
+    TcpIp,
+    Grpc
+}
+
+public static class HandlersFactory
+{
+    private static readonly IPAddress? LocalIp;
+    
+    static HandlersFactory()
+    {
+        LocalIp = Dns.GetHostEntry(Dns.GetHostName()).AddressList.FirstOrDefault(f => f.AddressFamily == AddressFamily.InterNetwork);
+    }
+    
+    
+    public static IServersHandler GetServers(HandlerType handlerType)
+    {
+        return handlerType switch
+        {
+            HandlerType.TcpIp => new TcpIp.ServersHandler(LocalIp!, ProjectContext.ServersPort),
+            HandlerType.Grpc => new Grpc.ServersHandlerService($"https://{LocalIp}:{ProjectContext.ServersPort}"),
+            _ => throw new ArgumentOutOfRangeException(nameof(handlerType), handlerType, null)
+        };
+    }
+    
+    public static IClientsHandler GetClients(HandlerType handlerType)
+    {
+        return handlerType switch
+        {
+            HandlerType.TcpIp => new TcpIp.ClientsHandler(LocalIp!, ProjectContext.ClientsPort),
+            HandlerType.Grpc => new Grpc.ClientsHandlerService($"https://{LocalIp}:{ProjectContext.ClientsHandler}"),
+            _ => throw new ArgumentOutOfRangeException(nameof(handlerType), handlerType, null)
+        };
+    }
+}
+
