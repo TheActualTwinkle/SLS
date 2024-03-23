@@ -5,12 +5,17 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <RootNamespace>SnaPDataTransfer</RootNamespace>
+        <RootNamespace>SDT</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-      <PackageReference Include="System.Composition" Version="8.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Protobuf Include="Grpc\Protos\clientsHandler.proto" GrpcServices="Both" />
+        <Protobuf Include="Grpc\Protos\serversHandler.proto" GrpcServices="Both" />
+        <PackageReference Include="Grpc.AspNetCore" Version="2.61.0" />
     </ItemGroup>
 
 </Project>

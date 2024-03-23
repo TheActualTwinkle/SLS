@@ -1,6 +1,7 @@
-﻿using System.Net.Sockets;
+﻿using System.Net;
+using System.Net.Sockets;
 using System.Text;
-using SDT.Commands;
+using SDT.TcpIp.Commands;
 
 namespace SDT.Tests;
 
@@ -8,10 +9,10 @@ public static class Tools
 {
     private const int EndDelayMs = 25;    
     
-    public static async Task<TcpClient> Connect(ushort port)
+    public static async Task<TcpClient> Connect(IPAddress ipAddress, ushort port)
     {
         TcpClient tcpClient = new();
-        await tcpClient.ConnectAsync("127.0.0.1", port);
+        await tcpClient.ConnectAsync(ipAddress, port);
 
         await Task.Delay(EndDelayMs);
         
@@ -115,7 +116,22 @@ public static class Tools
 
         return new LobbyInfo(ipAddress, port, maxSeats, playerCount, name);
     }
-    
+
+    /// <summary>
+    /// Compares two lobby info values.
+    /// </summary>
+    /// <param name="lobbyInfo1">Info 1</param>
+    /// <param name="lobbyInfo2">Info 2</param>
+    /// <returns>True if values are equal</returns>
+    public static bool LobbyInfoValuesEquals(LobbyInfo lobbyInfo1, LobbyInfo lobbyInfo2)
+    {
+        return lobbyInfo1.PublicIpAddress == lobbyInfo2.PublicIpAddress &&
+               lobbyInfo1.Port == lobbyInfo2.Port &&
+               lobbyInfo1.MaxSeats == lobbyInfo2.MaxSeats &&
+               lobbyInfo1.PlayersCount == lobbyInfo2.PlayersCount &&
+               lobbyInfo1.LobbyName == lobbyInfo2.LobbyName;
+    }
+
     private static void RegisterLobbyInfo(Guid guid, LobbyInfo lobbyInfo)
     {
         Program.LobbyInfos.TryAdd(guid, lobbyInfo);
