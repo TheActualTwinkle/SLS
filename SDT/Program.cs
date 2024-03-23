@@ -19,7 +19,7 @@ public static class Program
             Console.WriteLine("Error: Handlers are not initialized.");
             return;
         }
-        
+
         await Task.WhenAll(serverHandler, clientsHandler);
     }
 }

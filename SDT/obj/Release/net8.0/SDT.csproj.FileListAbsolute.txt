@@ -3,6 +3,13 @@ C:\CSharp\SDT\SDT\bin\Release\net8.0\SDT.deps.json
 C:\CSharp\SDT\SDT\bin\Release\net8.0\SDT.runtimeconfig.json
 C:\CSharp\SDT\SDT\bin\Release\net8.0\SDT.dll
 C:\CSharp\SDT\SDT\bin\Release\net8.0\SDT.pdb
+C:\CSharp\SDT\SDT\bin\Release\net8.0\Google.Protobuf.dll
+C:\CSharp\SDT\SDT\bin\Release\net8.0\Grpc.AspNetCore.Server.dll
+C:\CSharp\SDT\SDT\bin\Release\net8.0\Grpc.AspNetCore.Server.ClientFactory.dll
+C:\CSharp\SDT\SDT\bin\Release\net8.0\Grpc.Core.Api.dll
+C:\CSharp\SDT\SDT\bin\Release\net8.0\Grpc.Net.Client.dll
+C:\CSharp\SDT\SDT\bin\Release\net8.0\Grpc.Net.ClientFactory.dll
+C:\CSharp\SDT\SDT\bin\Release\net8.0\Grpc.Net.Common.dll
 C:\CSharp\SDT\SDT\bin\Release\net8.0\Newtonsoft.Json.dll
 C:\CSharp\SDT\SDT\obj\Release\net8.0\SDT.csproj.AssemblyReference.cache
 C:\CSharp\SDT\SDT\obj\Release\net8.0\SDT.GeneratedMSBuildEditorConfig.editorconfig
@@ -16,10 +23,3 @@ C:\CSharp\SDT\SDT\obj\Release\net8.0\refint\SDT.dll
 C:\CSharp\SDT\SDT\obj\Release\net8.0\SDT.pdb
 C:\CSharp\SDT\SDT\obj\Release\net8.0\SDT.genruntimeconfig.cache
 C:\CSharp\SDT\SDT\obj\Release\net8.0\ref\SDT.dll
-C:\CSharp\SDT\SDT\bin\Release\net8.0\Google.Protobuf.dll
-C:\CSharp\SDT\SDT\bin\Release\net8.0\Grpc.AspNetCore.Server.dll
-C:\CSharp\SDT\SDT\bin\Release\net8.0\Grpc.AspNetCore.Server.ClientFactory.dll
-C:\CSharp\SDT\SDT\bin\Release\net8.0\Grpc.Core.Api.dll
-C:\CSharp\SDT\SDT\bin\Release\net8.0\Grpc.Net.Client.dll
-C:\CSharp\SDT\SDT\bin\Release\net8.0\Grpc.Net.ClientFactory.dll
-C:\CSharp\SDT\SDT\bin\Release\net8.0\Grpc.Net.Common.dll

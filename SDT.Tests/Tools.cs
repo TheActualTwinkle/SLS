@@ -3,7 +3,7 @@ using System.Net.Sockets;
 using System.Text;
 using SDT.TcpIp.Commands;
 
-namespace SDT.Tests.TcpIp;
+namespace SDT.Tests;
 
 public static class Tools
 {

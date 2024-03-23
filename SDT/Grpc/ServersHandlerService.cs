@@ -1,29 +1,27 @@
 ﻿using System.Collections.Concurrent;
+using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace SDT.Grpc;
 
-public static class LobbyInfoConverter
-{
-    public static LobbyInfo? FromRequest(PostLobbyInfoRequest request)
-    {
-        if (ushort.TryParse(request.Port.ToString(), out ushort port) == false)
-        {
-            return null;
-        }
-        
-        return new LobbyInfo(request.PublicIpAddress, port, request.MaxSeats, request.PlayersCount, request.LobbyName);
-    }
-}
-
 public class ServersHandlerService(string? url = null) : ServersHandler.ServersHandlerBase, IServersHandler
 {
+    private class LobbyStatus(Guid guid)
+    {
+        public readonly Guid Guid = guid;
+        public bool IsFetched;
+    }
+
     /// <summary>
-    /// Key: Peer remote endpoint in URI format. Value: Guid of associated LobbyInfo.
+    /// Key: Peer remote endpoint in URI format. Value.Guid: Guid of associated LobbyInfo.
     /// </summary>
-    private static readonly ConcurrentDictionary<string, Guid> Peers = new();
+    private static ConcurrentDictionary<string, LobbyStatus> Peers { get; } = new();
+    
+    public static TimeSpan PollingInterval = TimeSpan.FromMinutes(1);
+
+    private WebApplication? _app;
     
     public async Task Run()
     {
@@ -32,33 +30,107 @@ public class ServersHandlerService(string? url = null) : ServersHandler.ServersH
         // Add services to the container.
         builder.Services.AddGrpc();
 
-        WebApplication app = builder.Build();
+        _app = builder.Build();
 
         // Configure the HTTP request pipeline.
-        app.MapGrpcService<ServersHandlerService>();
-        app.MapGet("/",
+        _app.MapGrpcService<ServersHandlerService>();
+        _app.MapGet("/",
             () =>
                 "Communication with gRPC endpoints must be made through a gRPC client.");
+
+#pragma warning disable CS4014
+        Task.Run(async () =>
+#pragma warning restore CS4014
+        {
+            while (true)
+            {
+                RemoveDeadLobbies();
+                await Task.Delay(PollingInterval);
+            }
+            // ReSharper disable once FunctionNeverReturns
+        });
         
-        await app.RunAsync(url);
+        await _app.RunAsync(url);
+    }
+    
+    public async Task Stop()
+    {
+        Peers.Clear();
+        
+        if (_app == null)
+        {
+            return;
+        }
+        
+        await _app.StopAsync();
     }
 
-    // TODO: Implement Unity server shutdown handling. (Delete client`s lobby info.)
-    public override Task<PostLobbyInfoResponse> PostLobbyInfo(PostLobbyInfoRequest request, ServerCallContext context)
+    public override Task<Empty> PostLobbyInfo(PostLobbyInfoRequest request, ServerCallContext context)
     {
-        Guid guid = Peers.GetOrAdd(context.Peer, Guid.NewGuid());
-
-        LobbyInfo? lobbyInfo = LobbyInfoConverter.FromRequest(request);
+        LobbyStatus lobbyStatus = Peers.GetOrAdd(context.Peer, new LobbyStatus(Guid.NewGuid()));
+        
+        LobbyInfo? lobbyInfo = LobbyInfoParser.Parse(request);
 
         if (lobbyInfo == null)
         {
-            return null!;
+            return Task.FromResult(new Empty());
         }
 
-        Program.LobbyInfos.AddOrUpdate(guid, lobbyInfo, (_, _) => lobbyInfo);
+        Program.LobbyInfos.AddOrUpdate(lobbyStatus.Guid, lobbyInfo, (_, _) => lobbyInfo);
+        lobbyStatus.IsFetched = true;
 
-        Console.WriteLine($"[SH/{guid}] Added/Updated new lobby info.");
+        Console.WriteLine($"[SH/{lobbyStatus.Guid}] Added/Updated new lobby info.");
 
-        return Task.FromResult(new PostLobbyInfoResponse());
+        return Task.FromResult(new Empty());
+    }
+
+    public override Task<DropLobbyResponse> DropLobby(Empty _, ServerCallContext context)
+    {
+        if (TryRemoveLobby(context.Peer, out Guid guid) == false)
+        {
+            return Task.FromResult(new DropLobbyResponse {Success = false});
+        }
+
+        Console.WriteLine($"[SH/{guid}] Lobby info removed.");
+
+        return Task.FromResult(new DropLobbyResponse {Success = true});
+    }
+    
+    private void RemoveDeadLobbies()
+    {
+        Peers.Where(x => x.Value.IsFetched == false)
+            .Select(x => x.Key)
+            .ToList()
+            .ForEach(peer =>
+            {
+                if (TryRemoveLobby(peer, out Guid guid) == true)
+                {
+                    Console.WriteLine($"[SH/{guid}] Lobby info is dead, removing...");
+                }
+            });
+
+        // Mark all as not-fetched.
+        foreach (LobbyStatus status in Peers.Values)
+        {
+            status.IsFetched = false;
+        }
+    }
+
+    private bool TryRemoveLobby(string peer, out Guid guid)
+    {
+        if (Peers.TryRemove(peer, out LobbyStatus? status) == false)
+        {
+            guid = Guid.Empty;
+            return false;
+        }
+
+        guid = status.Guid;
+
+        if (Program.LobbyInfos.TryRemove(guid, out _) == false)
+        {
+            return false;
+        }
+
+        return true;
     }
 }

@@ -24,18 +24,20 @@ namespace SDT.Grpc {
     static ServersHandlerReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "CiBHcnBjL1Byb3Rvcy9zZXJ2ZXJzSGFuZGxlci5wcm90byJ9ChRQb3N0TG9i",
-            "YnlJbmZvUmVxdWVzdBIZChFwdWJsaWNfaXBfYWRkcmVzcxgBIAEoCRIMCgRw",
-            "b3J0GAIgASgFEhEKCW1heF9zZWF0cxgDIAEoBRIVCg1wbGF5ZXJzX2NvdW50",
-            "GAQgASgFEhIKCmxvYmJ5X25hbWUYBSABKAkiFwoVUG9zdExvYmJ5SW5mb1Jl",
-            "c3BvbnNlMlAKDlNlcnZlcnNIYW5kbGVyEj4KDVBvc3RMb2JieUluZm8SFS5Q",
-            "b3N0TG9iYnlJbmZvUmVxdWVzdBoWLlBvc3RMb2JieUluZm9SZXNwb25zZUIL",
-            "qgIIU0RULkdycGNiBnByb3RvMw=="));
+            "CiBHcnBjL1Byb3Rvcy9zZXJ2ZXJzSGFuZGxlci5wcm90bxobZ29vZ2xlL3By",
+            "b3RvYnVmL2VtcHR5LnByb3RvIn0KFFBvc3RMb2JieUluZm9SZXF1ZXN0EhkK",
+            "EXB1YmxpY19pcF9hZGRyZXNzGAEgASgJEgwKBHBvcnQYAiABKAUSEQoJbWF4",
+            "X3NlYXRzGAMgASgFEhUKDXBsYXllcnNfY291bnQYBCABKAUSEgoKbG9iYnlf",
+            "bmFtZRgFIAEoCSIkChFEcm9wTG9iYnlSZXNwb25zZRIPCgdzdWNjZXNzGAEg",
+            "ASgIMokBCg5TZXJ2ZXJzSGFuZGxlchI+Cg1Qb3N0TG9iYnlJbmZvEhUuUG9z",
+            "dExvYmJ5SW5mb1JlcXVlc3QaFi5nb29nbGUucHJvdG9idWYuRW1wdHkSNwoJ",
+            "RHJvcExvYmJ5EhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5GhIuRHJvcExvYmJ5",
+            "UmVzcG9uc2VCC6oCCFNEVC5HcnBjYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { },
+          new pbr::FileDescriptor[] { global::Google.Protobuf.WellKnownTypes.EmptyReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::SDT.Grpc.PostLobbyInfoRequest), global::SDT.Grpc.PostLobbyInfoRequest.Parser, new[]{ "PublicIpAddress", "Port", "MaxSeats", "PlayersCount", "LobbyName" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::SDT.Grpc.PostLobbyInfoResponse), global::SDT.Grpc.PostLobbyInfoResponse.Parser, null, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::SDT.Grpc.DropLobbyResponse), global::SDT.Grpc.DropLobbyResponse.Parser, new[]{ "Success" }, null, null, null, null)
           }));
     }
     #endregion
@@ -381,16 +383,16 @@ namespace SDT.Grpc {
   }
 
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
-  public sealed partial class PostLobbyInfoResponse : pb::IMessage<PostLobbyInfoResponse>
+  public sealed partial class DropLobbyResponse : pb::IMessage<DropLobbyResponse>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
   {
-    private static readonly pb::MessageParser<PostLobbyInfoResponse> _parser = new pb::MessageParser<PostLobbyInfoResponse>(() => new PostLobbyInfoResponse());
+    private static readonly pb::MessageParser<DropLobbyResponse> _parser = new pb::MessageParser<DropLobbyResponse>(() => new DropLobbyResponse());
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<PostLobbyInfoResponse> Parser { get { return _parser; } }
+    public static pb::MessageParser<DropLobbyResponse> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -406,7 +408,7 @@ namespace SDT.Grpc {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public PostLobbyInfoResponse() {
+    public DropLobbyResponse() {
       OnConstruction();
     }
 
@@ -414,31 +416,45 @@ namespace SDT.Grpc {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public PostLobbyInfoResponse(PostLobbyInfoResponse other) : this() {
+    public DropLobbyResponse(DropLobbyResponse other) : this() {
+      success_ = other.success_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public PostLobbyInfoResponse Clone() {
-      return new PostLobbyInfoResponse(this);
+    public DropLobbyResponse Clone() {
+      return new DropLobbyResponse(this);
+    }
+
+    /// <summary>Field number for the "success" field.</summary>
+    public const int SuccessFieldNumber = 1;
+    private bool success_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Success {
+      get { return success_; }
+      set {
+        success_ = value;
+      }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
-      return Equals(other as PostLobbyInfoResponse);
+      return Equals(other as DropLobbyResponse);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(PostLobbyInfoResponse other) {
+    public bool Equals(DropLobbyResponse other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
       if (ReferenceEquals(other, this)) {
         return true;
       }
+      if (Success != other.Success) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -446,6 +462,7 @@ namespace SDT.Grpc {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
+      if (Success != false) hash ^= Success.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -464,6 +481,10 @@ namespace SDT.Grpc {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
+      if (Success != false) {
+        output.WriteRawTag(8);
+        output.WriteBool(Success);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -474,6 +495,10 @@ namespace SDT.Grpc {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (Success != false) {
+        output.WriteRawTag(8);
+        output.WriteBool(Success);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -484,6 +509,9 @@ namespace SDT.Grpc {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
+      if (Success != false) {
+        size += 1 + 1;
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -492,9 +520,12 @@ namespace SDT.Grpc {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(PostLobbyInfoResponse other) {
+    public void MergeFrom(DropLobbyResponse other) {
       if (other == null) {
         return;
+      }
+      if (other.Success != false) {
+        Success = other.Success;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -511,6 +542,10 @@ namespace SDT.Grpc {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
+          case 8: {
+            Success = input.ReadBool();
+            break;
+          }
         }
       }
     #endif
@@ -526,6 +561,10 @@ namespace SDT.Grpc {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
+          case 8: {
+            Success = input.ReadBool();
+            break;
+          }
         }
       }
     }

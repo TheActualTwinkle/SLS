@@ -3,7 +3,13 @@
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=C_003A_005CCSharp_005CSnaPDataTransfer_005CSnaPDataTransfer_005COpen_002ENat_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=C_003A_005CCSharp_005CSnaP_005CAssets_005CBasic_002DUPnP_005CPlugins_005COpen_002ENat_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=C_003A_005CCSharp_005CSnaP_005CAssets_005CScripts_005CBasic_002DUPnP_005CPlugins_005COpen_002ENat_002Edll/@EntryIndexedValue">True</s:Boolean>
-	<s:String x:Key="/Default/Environment/Highlighting/HighlightingSourceSnapshotLocation/@EntryValue">C:\Users\super\AppData\Local\JetBrains\Rider2023.3\resharper-host\temp\Rider\vAny\CoverageData\_SnaPDataTransfer.988965794\Snapshot\snapshot.utdcvr</s:String>
+	
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=0f09466b_002Da991_002D4aec_002D9010_002D2b6a8bf7302f/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="DropLobby" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::95E0AFD7-FD35-4F5E-8DBF-779A1D298E2B::net8.0::SDT.Tests.Grpc.ServersTests.DropLobby&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::95E0AFD7-FD35-4F5E-8DBF-779A1D298E2B::net8.0::SDT.Tests.Grpc.ServersTests.GetGuids&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
 	
 	
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=bc950eec_002D5228_002D4078_002Da5b7_002Db913031983a6/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from Solution" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;

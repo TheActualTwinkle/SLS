@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SDT")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1c515773348828099d8350850da365ff8b820629")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4a058dee9b65fbe139ce24c628ed4c76904e0a5b")]
 [assembly: System.Reflection.AssemblyProductAttribute("SDT")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SDT")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

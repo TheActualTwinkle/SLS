@@ -40,9 +40,9 @@ public class ClientsHandler(IPAddress ipAddress, ushort port) : IClientsHandler
                 // Blocks until a client has connected to the server.
                 TcpClient client = await _server.AcceptTcpClientAsync();
 
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+#pragma warning disable CS4014
                 Task.Run(() => Handle(client));
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+#pragma warning restore CS4014
             }
         }
         catch (Exception e)
@@ -52,7 +52,7 @@ public class ClientsHandler(IPAddress ipAddress, ushort port) : IClientsHandler
         finally
         {
             // Stop listening for new clients.
-            Stop();
+            await Stop();
         }
 
         Console.WriteLine("[CH] Server closing...");
@@ -131,9 +131,10 @@ public class ClientsHandler(IPAddress ipAddress, ushort port) : IClientsHandler
         }
     }
 
-    public void Stop()
+    public Task Stop()
     {
         _server?.Stop();
+        return Task.CompletedTask;
     }
 
     public bool HasClients()

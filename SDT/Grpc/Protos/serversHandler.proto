@@ -2,8 +2,11 @@ syntax = "proto3";
 
 option csharp_namespace = "SDT.Grpc";
 
+import "google/protobuf/empty.proto";
+
 service ServersHandler {
-  rpc PostLobbyInfo (PostLobbyInfoRequest) returns (PostLobbyInfoResponse);
+  rpc PostLobbyInfo (PostLobbyInfoRequest) returns (google.protobuf.Empty);
+  rpc DropLobby (google.protobuf.Empty) returns (DropLobbyResponse);
 }
 
 message PostLobbyInfoRequest {
@@ -16,5 +19,6 @@ message PostLobbyInfoRequest {
   string lobby_name = 5;
 }
 
-message PostLobbyInfoResponse {
+message DropLobbyResponse{
+  bool success = 1;
 }

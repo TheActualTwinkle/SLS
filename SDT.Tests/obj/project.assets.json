@@ -140,7 +140,8 @@
       "Grpc.Tools/2.61.0": {
         "type": "package",
         "build": {
-          "build/_._": {}
+          "build/Grpc.Tools.props": {},
+          "build/Grpc.Tools.targets": {}
         }
       },
       "Microsoft.CodeCoverage/17.8.0": {
@@ -1770,6 +1771,9 @@
   },
   "projectFileDependencyGroups": {
     "net8.0": [
+      "Google.Protobuf >= 3.24.0",
+      "Grpc.Net.Client >= 2.61.0",
+      "Grpc.Tools >= 2.61.0",
       "Microsoft.NET.Test.Sdk >= 17.8.0",
       "NUnit >= 3.14.0",
       "NUnit.Analyzers >= 3.9.0",
@@ -1826,6 +1830,20 @@
       "net8.0": {
         "targetAlias": "net8.0",
         "dependencies": {
+          "Google.Protobuf": {
+            "target": "Package",
+            "version": "[3.24.0, )"
+          },
+          "Grpc.Net.Client": {
+            "target": "Package",
+            "version": "[2.61.0, )"
+          },
+          "Grpc.Tools": {
+            "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+            "suppressParent": "All",
+            "target": "Package",
+            "version": "[2.61.0, )"
+          },
           "Microsoft.NET.Test.Sdk": {
             "target": "Package",
             "version": "[17.8.0, )"

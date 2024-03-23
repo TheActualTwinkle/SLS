@@ -46,7 +46,7 @@ namespace SDT.Grpc {
     }
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::SDT.Grpc.GetGuidsRequest> __Marshaller_GetGuidsRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::SDT.Grpc.GetGuidsRequest.Parser));
+    static readonly grpc::Marshaller<global::Google.Protobuf.WellKnownTypes.Empty> __Marshaller_google_protobuf_Empty = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Google.Protobuf.WellKnownTypes.Empty.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::SDT.Grpc.GetGuidsResponse> __Marshaller_GetGuidsResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::SDT.Grpc.GetGuidsResponse.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
@@ -55,11 +55,11 @@ namespace SDT.Grpc {
     static readonly grpc::Marshaller<global::SDT.Grpc.GetLobbyInfoResponse> __Marshaller_GetLobbyInfoResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::SDT.Grpc.GetLobbyInfoResponse.Parser));
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Method<global::SDT.Grpc.GetGuidsRequest, global::SDT.Grpc.GetGuidsResponse> __Method_GetGuids = new grpc::Method<global::SDT.Grpc.GetGuidsRequest, global::SDT.Grpc.GetGuidsResponse>(
+    static readonly grpc::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::SDT.Grpc.GetGuidsResponse> __Method_GetGuids = new grpc::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::SDT.Grpc.GetGuidsResponse>(
         grpc::MethodType.Unary,
         __ServiceName,
         "GetGuids",
-        __Marshaller_GetGuidsRequest,
+        __Marshaller_google_protobuf_Empty,
         __Marshaller_GetGuidsResponse);
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
@@ -81,7 +81,7 @@ namespace SDT.Grpc {
     public abstract partial class ClientsHandlerBase
     {
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::System.Threading.Tasks.Task<global::SDT.Grpc.GetGuidsResponse> GetGuids(global::SDT.Grpc.GetGuidsRequest request, grpc::ServerCallContext context)
+      public virtual global::System.Threading.Tasks.Task<global::SDT.Grpc.GetGuidsResponse> GetGuids(global::Google.Protobuf.WellKnownTypes.Empty request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
@@ -111,7 +111,7 @@ namespace SDT.Grpc {
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     public static void BindService(grpc::ServiceBinderBase serviceBinder, ClientsHandlerBase serviceImpl)
     {
-      serviceBinder.AddMethod(__Method_GetGuids, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::SDT.Grpc.GetGuidsRequest, global::SDT.Grpc.GetGuidsResponse>(serviceImpl.GetGuids));
+      serviceBinder.AddMethod(__Method_GetGuids, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::Google.Protobuf.WellKnownTypes.Empty, global::SDT.Grpc.GetGuidsResponse>(serviceImpl.GetGuids));
       serviceBinder.AddMethod(__Method_GetLobbyInfo, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::SDT.Grpc.GetLobbyInfoRequest, global::SDT.Grpc.GetLobbyInfoResponse>(serviceImpl.GetLobbyInfo));
     }
 

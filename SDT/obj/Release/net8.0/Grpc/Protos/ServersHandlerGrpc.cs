@@ -48,15 +48,25 @@ namespace SDT.Grpc {
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::SDT.Grpc.PostLobbyInfoRequest> __Marshaller_PostLobbyInfoRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::SDT.Grpc.PostLobbyInfoRequest.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::SDT.Grpc.PostLobbyInfoResponse> __Marshaller_PostLobbyInfoResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::SDT.Grpc.PostLobbyInfoResponse.Parser));
+    static readonly grpc::Marshaller<global::Google.Protobuf.WellKnownTypes.Empty> __Marshaller_google_protobuf_Empty = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Google.Protobuf.WellKnownTypes.Empty.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::SDT.Grpc.DropLobbyResponse> __Marshaller_DropLobbyResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::SDT.Grpc.DropLobbyResponse.Parser));
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Method<global::SDT.Grpc.PostLobbyInfoRequest, global::SDT.Grpc.PostLobbyInfoResponse> __Method_PostLobbyInfo = new grpc::Method<global::SDT.Grpc.PostLobbyInfoRequest, global::SDT.Grpc.PostLobbyInfoResponse>(
+    static readonly grpc::Method<global::SDT.Grpc.PostLobbyInfoRequest, global::Google.Protobuf.WellKnownTypes.Empty> __Method_PostLobbyInfo = new grpc::Method<global::SDT.Grpc.PostLobbyInfoRequest, global::Google.Protobuf.WellKnownTypes.Empty>(
         grpc::MethodType.Unary,
         __ServiceName,
         "PostLobbyInfo",
         __Marshaller_PostLobbyInfoRequest,
-        __Marshaller_PostLobbyInfoResponse);
+        __Marshaller_google_protobuf_Empty);
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::SDT.Grpc.DropLobbyResponse> __Method_DropLobby = new grpc::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::SDT.Grpc.DropLobbyResponse>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "DropLobby",
+        __Marshaller_google_protobuf_Empty,
+        __Marshaller_DropLobbyResponse);
 
     /// <summary>Service descriptor</summary>
     public static global::Google.Protobuf.Reflection.ServiceDescriptor Descriptor
@@ -69,7 +79,13 @@ namespace SDT.Grpc {
     public abstract partial class ServersHandlerBase
     {
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::System.Threading.Tasks.Task<global::SDT.Grpc.PostLobbyInfoResponse> PostLobbyInfo(global::SDT.Grpc.PostLobbyInfoRequest request, grpc::ServerCallContext context)
+      public virtual global::System.Threading.Tasks.Task<global::Google.Protobuf.WellKnownTypes.Empty> PostLobbyInfo(global::SDT.Grpc.PostLobbyInfoRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::System.Threading.Tasks.Task<global::SDT.Grpc.DropLobbyResponse> DropLobby(global::Google.Protobuf.WellKnownTypes.Empty request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
@@ -82,7 +98,8 @@ namespace SDT.Grpc {
     public static grpc::ServerServiceDefinition BindService(ServersHandlerBase serviceImpl)
     {
       return grpc::ServerServiceDefinition.CreateBuilder()
-          .AddMethod(__Method_PostLobbyInfo, serviceImpl.PostLobbyInfo).Build();
+          .AddMethod(__Method_PostLobbyInfo, serviceImpl.PostLobbyInfo)
+          .AddMethod(__Method_DropLobby, serviceImpl.DropLobby).Build();
     }
 
     /// <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
@@ -92,7 +109,8 @@ namespace SDT.Grpc {
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     public static void BindService(grpc::ServiceBinderBase serviceBinder, ServersHandlerBase serviceImpl)
     {
-      serviceBinder.AddMethod(__Method_PostLobbyInfo, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::SDT.Grpc.PostLobbyInfoRequest, global::SDT.Grpc.PostLobbyInfoResponse>(serviceImpl.PostLobbyInfo));
+      serviceBinder.AddMethod(__Method_PostLobbyInfo, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::SDT.Grpc.PostLobbyInfoRequest, global::Google.Protobuf.WellKnownTypes.Empty>(serviceImpl.PostLobbyInfo));
+      serviceBinder.AddMethod(__Method_DropLobby, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::Google.Protobuf.WellKnownTypes.Empty, global::SDT.Grpc.DropLobbyResponse>(serviceImpl.DropLobby));
     }
 
   }

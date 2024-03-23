@@ -1,4 +1,5 @@
-﻿using Grpc.Core;
+﻿using Google.Protobuf.WellKnownTypes;
+using Grpc.Core;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -7,6 +8,8 @@ namespace SDT.Grpc;
 // Constructor with optional parameter is REQUIRED in case of client procedure call. Exception raised otherwise.
 public class ClientsHandlerService(string? url = null) : ClientsHandler.ClientsHandlerBase, IClientsHandler
 {
+    private WebApplication? _app;
+    
     public async Task Run()
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder();
@@ -14,18 +17,28 @@ public class ClientsHandlerService(string? url = null) : ClientsHandler.ClientsH
         // Add services to the container.
         builder.Services.AddGrpc();
 
-        WebApplication app = builder.Build();
+        _app = builder.Build();
 
         // Configure the HTTP request pipeline.
-        app.MapGrpcService<ClientsHandlerService>();
-        app.MapGet("/",
+        _app.MapGrpcService<ClientsHandlerService>();
+        _app.MapGet("/",
             () =>
                 "Communication with gRPC endpoints must be made through a gRPC client.");
         
-        await app.RunAsync(url);
+        await _app.RunAsync(url);
+    }
+
+    public async Task Stop()
+    {
+        if (_app == null)
+        {
+            return;
+        }
+        
+        await _app.StopAsync();
     }
     
-    public override Task<GetGuidsResponse> GetGuids(GetGuidsRequest request, ServerCallContext context)
+    public override Task<GetGuidsResponse> GetGuids(Empty _, ServerCallContext context)
     {
         GetGuidsResponse getGuidsResponse = new()
         {
@@ -39,12 +52,12 @@ public class ClientsHandlerService(string? url = null) : ClientsHandler.ClientsH
     {
         if (Guid.TryParse(request.Guid, out Guid guid) == false)
         {
-            return null!;
+            return Task.FromResult(new GetLobbyInfoResponse());
         }
 
         if (Program.LobbyInfos.TryGetValue(guid, out LobbyInfo? lobbyInfo) == false)
         {
-            return null!;
+            return Task.FromResult(new GetLobbyInfoResponse());
         }
         
         return Task.FromResult(new GetLobbyInfoResponse

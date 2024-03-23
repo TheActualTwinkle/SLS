@@ -1,14 +1,12 @@
 syntax = "proto3";
 
-
 option csharp_namespace = "SDT.Grpc";
 
-service ClientsHandler {
-  rpc GetGuids (GetGuidsRequest) returns (GetGuidsResponse);
-  rpc GetLobbyInfo (GetLobbyInfoRequest) returns (GetLobbyInfoResponse);
-}
+import "google/protobuf/empty.proto";
 
-message GetGuidsRequest {
+service ClientsHandler {
+  rpc GetGuids (google.protobuf.Empty) returns (GetGuidsResponse);
+  rpc GetLobbyInfo (GetLobbyInfoRequest) returns (GetLobbyInfoResponse);
 }
 
 message GetGuidsResponse {
