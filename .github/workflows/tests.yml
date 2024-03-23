@@ -13,20 +13,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 8.0.x
-
     - name: Restore dependencies
       run: dotnet restore SnaPDataTransfer.sln
-
-    - name: Trust ASP.NET Core Developer Certificate
-      run: dotnet dev-certs https --trust
-
+    - name: Install OpenSSL
+      run: sudo apt-get install libssl-dev
+    - name: Setup HTTPS sertificate
+      run: dotnet dev-certs https &&
+          sudo -E dotnet dev-certs https -ep /usr/local/share/ca-certificates/aspnet/https.crt --format PEM &&
+          sudo update-ca-certificates
     - name: Build
       run: dotnet build SnaPDataTransfer.sln --no-restore
-
     - name: Test
       run: dotnet test SDT.Tests/SDT.Tests.csproj --no-build --verbosity normal
