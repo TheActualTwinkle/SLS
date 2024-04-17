@@ -19,7 +19,6 @@ jobs:
         dotnet-version: 8.0.x
     - name: Restore dependencies
       run: dotnet restore SnaPDataTransfer.sln
-      run: dotnet dev-certs https --trust
     - name: Build
       run: dotnet build SnaPDataTransfer.sln --no-restore
     - name: Test
