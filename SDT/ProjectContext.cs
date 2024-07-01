@@ -13,7 +13,7 @@ public static class ProjectContext
 
     private static HandlerType _handlerType = HandlerType.TcpIp;
     
-    public static void InitializeAsync()
+    public static Task InitializeAsync()
     {
         string[] args = Environment.GetCommandLineArgs();
 
@@ -27,6 +27,8 @@ public static class ProjectContext
         ClientsHandler = HandlersFactory.GetClients(_handlerType);
 
         Console.WriteLine("[Context] Handler type: " + _handlerType);
+
+        return Task.CompletedTask;
     }
 }
 

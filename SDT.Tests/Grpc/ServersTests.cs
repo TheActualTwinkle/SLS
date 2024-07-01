@@ -33,10 +33,7 @@ public class ServersTests
 
         LobbyInfo actualLobbyInfo = Program.LobbyInfos.First().Value;
 
-        Assert.That(
-            Tools.LobbyInfoValuesEquals(expectedLobbyInfo, actualLobbyInfo)
-            && Program.LobbyInfos.IsEmpty == false,
-            Is.True);
+        Assert.That(Tools.LobbyInfoValuesEquals(expectedLobbyInfo, actualLobbyInfo) && Program.LobbyInfos.IsEmpty == false, Is.True);
     }
 
     [Test]
