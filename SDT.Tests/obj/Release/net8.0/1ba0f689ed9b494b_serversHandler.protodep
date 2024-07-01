@@ -1,3 +1,0 @@
-obj\Release\net8.0/ServersHandler.cs \
-obj\Release\net8.0/ServersHandlerGrpc.cs: C:/Users/super/.nuget/packages/grpc.tools/2.61.0/build/native/include/google/protobuf/empty.proto\
- ../SDT/Grpc/Protos/serversHandler.proto
