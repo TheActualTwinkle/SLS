@@ -18,7 +18,7 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Restore dependencies
-      run: dotnet restore SDT.sln
+      run: dotnet restore SLS.sln
     - name: Install OpenSSL
       run: sudo apt-get install libssl-dev
     - name: Setup HTTPS sertificate
@@ -26,6 +26,6 @@ jobs:
           sudo -E dotnet dev-certs https -ep /usr/local/share/ca-certificates/aspnet/https.crt --format PEM &&
           sudo update-ca-certificates
     - name: Build
-      run: dotnet build SDT.sln --no-restore
+      run: dotnet build SLS.sln --no-restore
     - name: Test
-      run: dotnet test SDT.Tests/SDT.Tests.csproj --no-build --verbosity normal
+      run: dotnet test SLS.Tests/SLS.Tests.csproj --no-build --verbosity normal
