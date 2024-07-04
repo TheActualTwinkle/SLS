@@ -81,11 +81,11 @@ public class ServerTests
     [Test]
     public async Task PostLobbyInfo_LobbyInfoAsJson_LobbyInfoArrayContainsEntry()
     {
-        LobbyInfo randomLobbyInfo = await PostRandomLobbyInfo();
+        LobbyDto randomLobbyDto = await PostRandomLobbyInfo();
 
-        LobbyInfo lobbyInfo = Program.LobbyInfos.Values.First();
+        LobbyDto lobbyDto = Program.LobbyInfos.Values.First();
 
-        Assert.That(Tools.LobbyInfoValuesEquals(lobbyInfo, randomLobbyInfo), Is.True);
+        Assert.That(Tools.LobbyInfoValuesEquals(lobbyDto, randomLobbyDto), Is.True);
     }
 
     [Test]
@@ -99,18 +99,18 @@ public class ServerTests
     [Test]
     public async Task EditLobbyInfo_LobbyInfoAsJson_LobbyInfoArrayChangesEntry()
     {
-        LobbyInfo randomLobbyInfo1 = await PostRandomLobbyInfo();
+        LobbyDto randomLobbyInfo1 = await PostRandomLobbyInfo();
 
-        LobbyInfo lobbyInfo = Program.LobbyInfos.Values.First();
+        LobbyDto lobbyDto = Program.LobbyInfos.Values.First();
 
-        if (Tools.LobbyInfoValuesEquals(lobbyInfo, randomLobbyInfo1) == false)
+        if (Tools.LobbyInfoValuesEquals(lobbyDto, randomLobbyInfo1) == false)
         {
             Assert.Fail();
         }
 
-        LobbyInfo randomLobbyInfo2 = await PostRandomLobbyInfo();
+        LobbyDto randomLobbyInfo2 = await PostRandomLobbyInfo();
 
-        Assert.That(Tools.LobbyInfoValuesEquals(lobbyInfo, randomLobbyInfo2), Is.True);
+        Assert.That(Tools.LobbyInfoValuesEquals(lobbyDto, randomLobbyInfo2), Is.True);
     }
     
     [Test]
@@ -129,10 +129,10 @@ public class ServerTests
         await Tools.Disconnect(_tcpClient);
     }
 
-    private async Task<LobbyInfo> PostRandomLobbyInfo()
+    private async Task<LobbyDto> PostRandomLobbyInfo()
     {
-        LobbyInfo randomLobbyInfo = Tools.GetRandomLobbyInfo();
-        await Tools.WriteCommandAsync(new Command(CommandType.PostLobbyInfo, randomLobbyInfo), NetworkStream);
-        return randomLobbyInfo;
+        LobbyDto randomLobbyDto = Tools.GetRandomLobbyInfo();
+        await Tools.WriteCommandAsync(new Command(CommandType.PostLobbyInfo, randomLobbyDto), NetworkStream);
+        return randomLobbyDto;
     }
 }

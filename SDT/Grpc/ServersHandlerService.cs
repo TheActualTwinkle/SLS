@@ -31,7 +31,7 @@ public class ServersHandlerService(string? url = null) : ServersHandler.ServersH
         builder.Services.AddGrpc();
 
         _app = builder.Build();
-
+        
         // Configure the HTTP request pipeline.
         _app.MapGrpcService<ServersHandlerService>();
         _app.MapGet("/",
@@ -69,7 +69,7 @@ public class ServersHandlerService(string? url = null) : ServersHandler.ServersH
     {
         LobbyStatus lobbyStatus = Peers.GetOrAdd(context.Peer, new LobbyStatus(Guid.NewGuid()));
         
-        LobbyInfo? lobbyInfo = LobbyInfoParser.Parse(request);
+        LobbyDto? lobbyInfo = LobbyInfoParser.Parse(request);
 
         if (lobbyInfo == null)
         {
@@ -84,16 +84,16 @@ public class ServersHandlerService(string? url = null) : ServersHandler.ServersH
         return Task.FromResult(new Empty());
     }
 
-    public override Task<DropLobbyResponse> DropLobby(Empty _, ServerCallContext context)
+    public override Task<Empty> DropLobby(Empty _, ServerCallContext context)
     {
         if (TryRemoveLobby(context.Peer, out Guid guid) == false)
         {
-            return Task.FromResult(new DropLobbyResponse {Success = false});
+            return Task.FromResult(new Empty());
         }
 
         Console.WriteLine($"[SH/{guid}] Lobby info removed.");
 
-        return Task.FromResult(new DropLobbyResponse {Success = true});
+        return Task.FromResult(new Empty());
     }
     
     private void RemoveDeadLobbies()

@@ -6,7 +6,7 @@ import "google/protobuf/empty.proto";
 
 service ServersHandler {
   rpc PostLobbyInfo (PostLobbyInfoRequest) returns (google.protobuf.Empty);
-  rpc DropLobby (google.protobuf.Empty) returns (DropLobbyResponse);
+  rpc DropLobby (google.protobuf.Empty) returns (google.protobuf.Empty);
 }
 
 message PostLobbyInfoRequest {
@@ -17,8 +17,4 @@ message PostLobbyInfoRequest {
   int32 players_count = 4;
 
   string lobby_name = 5;
-}
-
-message DropLobbyResponse{
-  bool success = 1;
 }

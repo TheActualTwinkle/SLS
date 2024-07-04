@@ -4,7 +4,7 @@ namespace SDT;
 
 public static class Program
 {
-    public static readonly ConcurrentDictionary<Guid, LobbyInfo> LobbyInfos = new();
+    public static readonly ConcurrentDictionary<Guid, LobbyDto> LobbyInfos = new();
     
     public static async Task Main()
     {

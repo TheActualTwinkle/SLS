@@ -91,8 +91,8 @@ public static class Tools
 
         foreach (Guid uid in uids)
         {
-            LobbyInfo randomLobbyInfo = GetRandomLobbyInfo();
-            RegisterLobbyInfo(uid, randomLobbyInfo);
+            LobbyDto randomLobbyDto = GetRandomLobbyInfo();
+            RegisterLobbyInfo(uid, randomLobbyDto);
         }
 
         return uids;
@@ -102,11 +102,10 @@ public static class Tools
     /// Creates lobby info with random values and registers it in Program.LobbyInfos dictionary.
     /// </summary>
     /// <returns>Created lobby info</returns>
-    public static LobbyInfo GetRandomLobbyInfo()
+    public static LobbyDto GetRandomLobbyInfo()
     {
         Random random = new();
         
-        const string ipAddress = "127.0.0.1";
         var port = (ushort)random.Next(0, 10000);
         
         int maxSeats = random.Next(0, 100);
@@ -114,26 +113,26 @@ public static class Tools
         
         string name = "TestLobby_" + random.Next(-100, 100);
 
-        return new LobbyInfo(ipAddress, port, maxSeats, playerCount, name);
+        return new LobbyDto("127.0.0.1", port, maxSeats, playerCount, name);
     }
 
     /// <summary>
     /// Compares two lobby info values.
     /// </summary>
-    /// <param name="lobbyInfo1">Info 1</param>
-    /// <param name="lobbyInfo2">Info 2</param>
+    /// <param name="lobbyDto1">Info 1</param>
+    /// <param name="lobbyDto2">Info 2</param>
     /// <returns>True if values are equal</returns>
-    public static bool LobbyInfoValuesEquals(LobbyInfo lobbyInfo1, LobbyInfo lobbyInfo2)
+    public static bool LobbyInfoValuesEquals(LobbyDto lobbyDto1, LobbyDto lobbyDto2)
     {
-        return lobbyInfo1.PublicIpAddress == lobbyInfo2.PublicIpAddress &&
-               lobbyInfo1.Port == lobbyInfo2.Port &&
-               lobbyInfo1.MaxSeats == lobbyInfo2.MaxSeats &&
-               lobbyInfo1.PlayersCount == lobbyInfo2.PlayersCount &&
-               lobbyInfo1.LobbyName == lobbyInfo2.LobbyName;
+        return lobbyDto1.PublicIpAddress == lobbyDto2.PublicIpAddress &&
+               lobbyDto1.Port == lobbyDto2.Port &&
+               lobbyDto1.MaxSeats == lobbyDto2.MaxSeats &&
+               lobbyDto1.PlayersCount == lobbyDto2.PlayersCount &&
+               lobbyDto1.LobbyName == lobbyDto2.LobbyName;
     }
 
-    private static void RegisterLobbyInfo(Guid guid, LobbyInfo lobbyInfo)
+    private static void RegisterLobbyInfo(Guid guid, LobbyDto lobbyDto)
     {
-        Program.LobbyInfos.TryAdd(guid, lobbyInfo);
+        Program.LobbyInfos.TryAdd(guid, lobbyDto);
     }
 }

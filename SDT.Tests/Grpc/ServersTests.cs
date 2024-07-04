@@ -29,11 +29,11 @@ public class ServersTests
     [Test]
     public async Task GetGuids()
     {
-        LobbyInfo expectedLobbyInfo = await PostRandomLobbyInfo();
+        LobbyDto expectedLobbyDto = await PostRandomLobbyInfo();
 
-        LobbyInfo actualLobbyInfo = Program.LobbyInfos.First().Value;
+        LobbyDto actualLobbyDto = Program.LobbyInfos.First().Value;
 
-        Assert.That(Tools.LobbyInfoValuesEquals(expectedLobbyInfo, actualLobbyInfo) && Program.LobbyInfos.IsEmpty == false, Is.True);
+        Assert.That(Tools.LobbyInfoValuesEquals(expectedLobbyDto, actualLobbyDto) && Program.LobbyInfos.IsEmpty == false, Is.True);
     }
 
     [Test]
@@ -41,9 +41,9 @@ public class ServersTests
     {
         await PostRandomLobbyInfo();
 
-        DropLobbyResponse response = await _client.DropLobbyAsync(new Empty());
+        await _client.DropLobbyAsync(new Empty());
 
-        Assert.That(Program.LobbyInfos.IsEmpty == true && response.Success == true, Is.True);
+        Assert.That(Program.LobbyInfos.IsEmpty, Is.EqualTo(true));
     }
 
     [Test]
@@ -75,12 +75,12 @@ public class ServersTests
         await _serversHandler.Stop();
     }
 
-    private async Task<LobbyInfo> PostRandomLobbyInfo()
+    private async Task<LobbyDto> PostRandomLobbyInfo()
     {
-        LobbyInfo expectedLobbyInfo = Tools.GetRandomLobbyInfo();
-        PostLobbyInfoRequest? request = LobbyInfoParser.ToRequest(expectedLobbyInfo);
+        LobbyDto expectedLobbyDto = Tools.GetRandomLobbyInfo();
+        PostLobbyInfoRequest? request = LobbyInfoParser.ToRequest(expectedLobbyDto);
 
         await _client.PostLobbyInfoAsync(request);
-        return expectedLobbyInfo;
+        return expectedLobbyDto;
     }
 }

@@ -68,14 +68,10 @@ public class ServersHandler(IPAddress ipAddress, ushort port) : IServersHandler
 
         Console.WriteLine($"[SH/{guid}] Client connected!");
         
-        _serversListSemaphore.WaitOne();
-        _servers.Add(guid);
-        _serversListSemaphore.Release();
-        
         // Buffer to store the response bytes.
         var message = new byte[BufferSize];
 
-        LobbyInfo lobbyInfo = new(string.Empty, 0, 0, 0, "Initializing...");
+        LobbyDto lobbyDto = new(string.Empty, 0, 0, 0, "Initializing...");
 
         while (true)
         {
@@ -111,10 +107,10 @@ public class ServersHandler(IPAddress ipAddress, ushort port) : IServersHandler
             switch (commandType)
             {
                 case CommandType.PostLobbyInfo:
-                    LobbyInfo newLobbyInfo;
+                    LobbyDto newLobbyDto;
                     try
                     {
-                        newLobbyInfo = JsonConvert.DeserializeObject<LobbyInfo>(command?.Content?.ToString()!)!;
+                        newLobbyDto = JsonConvert.DeserializeObject<LobbyDto>(command?.Content?.ToString()!)!;
                     }
                     catch (Exception e)
                     {
@@ -123,7 +119,7 @@ public class ServersHandler(IPAddress ipAddress, ushort port) : IServersHandler
                         return; 
                     }
                     
-                    HandlePostLobbyInfoCommand(guid, lobbyInfo, newLobbyInfo);
+                    HandlePostLobbyInfoCommand(guid, lobbyDto, newLobbyDto);
                     break;
                 case CommandType.GetStatus:
                     await HandleGetStatusCommand(tcpClient.GetStream());
@@ -171,9 +167,9 @@ public class ServersHandler(IPAddress ipAddress, ushort port) : IServersHandler
 
     #region CommandHandlers
 
-    private void HandlePostLobbyInfoCommand(Guid guid, LobbyInfo lobbyInfo, LobbyInfo newLobbyInfo)
+    private void HandlePostLobbyInfoCommand(Guid guid, LobbyDto lobbyDto, LobbyDto newLobbyDto)
     {
-        newLobbyInfo.CopyValuesTo(ref lobbyInfo); // Update info.
+        newLobbyDto.CopyValuesTo(ref lobbyDto); // Update info.
 
         if (Program.LobbyInfos.ContainsKey(guid) == true)
         {
@@ -181,7 +177,7 @@ public class ServersHandler(IPAddress ipAddress, ushort port) : IServersHandler
         }
             
         Console.WriteLine($"[SH/{guid}] Added new lobby info.");
-        Program.LobbyInfos.TryAdd(guid, lobbyInfo);
+        Program.LobbyInfos.TryAdd(guid, lobbyDto);
     }
 
     private async Task HandleGetStatusCommand(NetworkStream clientStream)

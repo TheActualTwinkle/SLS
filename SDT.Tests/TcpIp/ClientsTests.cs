@@ -55,10 +55,9 @@ public class ClientTests
     {
         await Tools.WriteCommandAsync(new Command(CommandType.GetStatus), NetworkStream);
 
-        string response =
-            await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token);
+        string response = await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token);
 
-        Assert.That(response, Is.EqualTo(ClientsHandler.GetStatusSuccessResponse));
+        Assert.That(response, Is.EqualTo(ClientsHandler.GetStatusResponse));
     }
 
     [Test]
@@ -66,8 +65,7 @@ public class ClientTests
     {
         await Tools.WriteCommandAsync(new Command(), NetworkStream);
 
-        string response =
-            await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token);
+        string response = await Tools.ReadAsync(NetworkStream, new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token);
 
         Assert.That(response, Is.EqualTo(ClientsHandler.UnknownCommandResponse));
     }
@@ -106,7 +104,7 @@ public class ClientTests
         const uint randomLobbiesCount = 5;
         List<Guid> guids = Tools.RegisterRandomLobbyInfo(randomLobbiesCount);
 
-        List<LobbyInfo> lobbyInfosByRequest = await GetLobbyInfosByRequest(guids);
+        List<LobbyDto> lobbyInfosByRequest = await GetLobbyInfosByRequest(guids);
 
         for (var i = 0; i < guids.Count; i++)
         {
@@ -126,7 +124,7 @@ public class ClientTests
 
         try
         {
-            JsonConvert.DeserializeObject<LobbyInfo?>(response);
+            JsonConvert.DeserializeObject<LobbyDto?>(response);
             Assert.Fail();
         }
         catch (JsonSerializationException)
@@ -144,7 +142,7 @@ public class ClientTests
         // Generate randomLobbiesCount fake guid.
         guids[0] = Guid.NewGuid();
 
-        List<LobbyInfo> lobbyInfosByRequest = await GetLobbyInfosByRequest(guids);
+        List<LobbyDto> lobbyInfosByRequest = await GetLobbyInfosByRequest(guids);
 
         // All elements should be null.
         Assert.That(lobbyInfosByRequest[0] == null! && lobbyInfosByRequest[1..] != null!, Is.True);
@@ -173,9 +171,9 @@ public class ClientTests
     /// </summary>
     /// <param name="guids">Guids array to be pasted in '{get-info}{separator}{guid}' request</param>
     /// <returns></returns>
-    private async Task<List<LobbyInfo>> GetLobbyInfosByRequest(IEnumerable<Guid> guids)
+    private async Task<List<LobbyDto>> GetLobbyInfosByRequest(IEnumerable<Guid> guids)
     {
-        List<LobbyInfo> lobbyInfos = [];
+        List<LobbyDto> lobbyInfos = [];
 
         foreach (Guid guid in guids)
         {
@@ -186,7 +184,7 @@ public class ClientTests
 
             try
             {
-                LobbyInfo? lobbyInfo = JsonConvert.DeserializeObject<LobbyInfo>(response);
+                LobbyDto? lobbyInfo = JsonConvert.DeserializeObject<LobbyDto>(response);
                 lobbyInfos.Add(lobbyInfo!);
             }
             catch (Exception)

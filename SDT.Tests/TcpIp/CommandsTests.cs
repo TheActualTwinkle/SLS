@@ -9,8 +9,8 @@ public class CommandsTests
     public void ParseAndUnparse()
     {
         // Create expected command
-        LobbyInfo randomLobbyInfo = Tools.GetRandomLobbyInfo();
-        Command expectedCommand = new(CommandType.PostLobbyInfo, randomLobbyInfo);
+        LobbyDto randomLobbyDto = Tools.GetRandomLobbyInfo();
+        Command expectedCommand = new(CommandType.PostLobbyInfo, randomLobbyDto);
         string? expectedJson = CommandParser.ToJson(expectedCommand);
 
         // Unparse actual command

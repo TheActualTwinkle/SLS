@@ -18,7 +18,7 @@ public class ClientsHandlerService(string? url = null) : ClientsHandler.ClientsH
         builder.Services.AddGrpc();
 
         _app = builder.Build();
-
+        
         // Configure the HTTP request pipeline.
         _app.MapGrpcService<ClientsHandlerService>();
         _app.MapGet("/",
@@ -55,7 +55,7 @@ public class ClientsHandlerService(string? url = null) : ClientsHandler.ClientsH
             return Task.FromResult(new GetLobbyInfoResponse());
         }
 
-        if (Program.LobbyInfos.TryGetValue(guid, out LobbyInfo? lobbyInfo) == false)
+        if (Program.LobbyInfos.TryGetValue(guid, out LobbyDto? lobbyInfo) == false)
         {
             return Task.FromResult(new GetLobbyInfoResponse());
         }

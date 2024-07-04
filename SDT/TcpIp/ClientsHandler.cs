@@ -15,7 +15,7 @@ public class ClientsHandler(IPAddress ipAddress, ushort port) : IClientsHandler
 
     private readonly Semaphore _clientsListSemaphore = new(1, 1);
     
-    public const string GetStatusSuccessResponse = "OK";
+    public const string GetStatusResponse = "OK";
     public const string UnknownCommandResponse = "Unknown Command";
 
     // Local list of connected SnaP Clients.
@@ -170,7 +170,7 @@ public class ClientsHandler(IPAddress ipAddress, ushort port) : IClientsHandler
     {
         try
         {
-            byte[] response = Encoding.ASCII.GetBytes(GetStatusSuccessResponse);
+            byte[] response = Encoding.ASCII.GetBytes(GetStatusResponse);
             await clientStream.WriteAsync(response.ToArray());
         
             Console.WriteLine($"[CH/{chGuid}] Sent status.");
@@ -216,7 +216,7 @@ public class ClientsHandler(IPAddress ipAddress, ushort port) : IClientsHandler
 
         try
         {
-            LobbyInfo clientState = Program.LobbyInfos[guid];
+            LobbyDto clientState = Program.LobbyInfos[guid];
 
             string stateJson = JsonConvert.SerializeObject(clientState);
             byte[] reply = Encoding.ASCII.GetBytes(stateJson);

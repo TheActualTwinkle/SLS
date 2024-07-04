@@ -1,4 +1,5 @@
-﻿using SDT;
+﻿using System.Net;
+using SDT;
 using SDT.Grpc;
 
 public static class LobbyInfoParser
@@ -7,35 +8,35 @@ public static class LobbyInfoParser
     /// Parsing PostLobbyInfoRequest to LobbyInfo
     /// </summary>
     /// <returns>Lobby info</returns>
-    public static LobbyInfo? Parse(PostLobbyInfoRequest request)
+    public static LobbyDto? Parse(PostLobbyInfoRequest request)
     {
         if (ushort.TryParse(request.Port.ToString(), out ushort port) == false)
         {
             return null;
         }
         
-        return new LobbyInfo(request.PublicIpAddress, port, request.MaxSeats, request.PlayersCount, request.LobbyName);
+        return new LobbyDto(request.PublicIpAddress, port, request.MaxSeats, request.PlayersCount, request.LobbyName);
     }
 
-    public static LobbyInfo? Parse(GetLobbyInfoResponse response)
+    public static LobbyDto? Parse(GetLobbyInfoResponse response)
     {
         if (ushort.TryParse(response.Port.ToString(), out ushort port) == false)
         {
             return null;
         }
 
-        return new LobbyInfo(response.PublicIpAddress, (ushort)response.Port, response.MaxSeats, response.PlayersCount, response.LobbyName);
+        return new LobbyDto(response.PublicIpAddress, port, response.MaxSeats, response.PlayersCount, response.LobbyName);
     }
     
-    public static PostLobbyInfoRequest? ToRequest(LobbyInfo lobbyInfo)
+    public static PostLobbyInfoRequest? ToRequest(LobbyDto lobbyDto)
     {
         PostLobbyInfoRequest request = new()
         {
-            PublicIpAddress = lobbyInfo.PublicIpAddress,
-            Port = lobbyInfo.Port,
-            MaxSeats = lobbyInfo.MaxSeats,
-            PlayersCount = lobbyInfo.PlayersCount,
-            LobbyName = lobbyInfo.LobbyName
+            PublicIpAddress = lobbyDto.PublicIpAddress,
+            Port = lobbyDto.Port,
+            MaxSeats = lobbyDto.MaxSeats,
+            PlayersCount = lobbyDto.PlayersCount,
+            LobbyName = lobbyDto.LobbyName
         };
 
         return request;
