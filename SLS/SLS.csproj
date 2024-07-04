@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>SLS</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Protobuf Include="Grpc\Protos\clientsHandler.proto" GrpcServices="Both" />
+        <Protobuf Include="Grpc\Protos\serversHandler.proto" GrpcServices="Both" />
+        <PackageReference Include="Grpc.AspNetCore" Version="2.61.0" />
+    </ItemGroup>
+
+</Project>

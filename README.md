@@ -1,5 +1,5 @@
-# SDT
-SDT - [SnaP](https://github.com/TheActualTwinkle/SnaP) Data Transfer
+# SLS
+SLS - [SnaP](https://github.com/TheActualTwinkle/SnaP) Lobby Service
 
 ## What is this?
 * Using *TCP/IP* or [*gRPC*](https://learn.microsoft.com/en-us/aspnet/core/grpc/?view=aspnetcore-8.0)  we getting data about Game Lobbies from **SnaP** Server/Host
@@ -8,7 +8,5 @@ SDT - [SnaP](https://github.com/TheActualTwinkle/SnaP) Data Transfer
 
 To run with *gRPC* use  `-g` agrument
 ```bash
-dotnet run --project SDT -g
+dotnet run --project SLS -g
 ```
-
-![WorkingPrincipe](GitImages/SDT_en.png)

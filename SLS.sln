@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SLS", "SLS\SLS.csproj", "{DBBB1CD1-3D05-435A-A517-1DFDF90991E4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SLS.Tests", "SLS.Tests\SLS.Tests.csproj", "{95E0AFD7-FD35-4F5E-8DBF-779A1D298E2B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DBBB1CD1-3D05-435A-A517-1DFDF90991E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBBB1CD1-3D05-435A-A517-1DFDF90991E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBBB1CD1-3D05-435A-A517-1DFDF90991E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBBB1CD1-3D05-435A-A517-1DFDF90991E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F6EEB77-EB09-4632-977F-BC062AAE0951}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F6EEB77-EB09-4632-977F-BC062AAE0951}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F6EEB77-EB09-4632-977F-BC062AAE0951}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F6EEB77-EB09-4632-977F-BC062AAE0951}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95E0AFD7-FD35-4F5E-8DBF-779A1D298E2B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95E0AFD7-FD35-4F5E-8DBF-779A1D298E2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95E0AFD7-FD35-4F5E-8DBF-779A1D298E2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95E0AFD7-FD35-4F5E-8DBF-779A1D298E2B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
